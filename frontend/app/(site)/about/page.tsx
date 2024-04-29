@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   // other metadata
 };
 
-export const AboutPage = () => {
+const AboutPage = () => {
   return (
     <>
       {/* Main content */}
