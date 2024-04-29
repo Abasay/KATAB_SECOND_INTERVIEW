@@ -8,10 +8,10 @@ export const metadata: Metadata = {
   // other metadata
 };
 
-const Dashboard = ({ children }: { children: React.ReactNode }) => {
+const Dashboard = () => {
   return (
     <>
-      <DashboardComp children={children} />
+      <DashboardComp />
     </>
   );
 };

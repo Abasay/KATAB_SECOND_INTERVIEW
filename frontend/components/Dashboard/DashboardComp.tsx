@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import TransactionHistory from "./DashboardPages/TransactionHistory/TransactionHistory";
 import RewardsAndCashbackHistory from "./DashboardPages/Rewards&Cashbacks/Rewards&Cashbacks";
 
-const DashboardComp = ({ children }: { children: React.ReactNode }) => {
+const DashboardComp = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [activeSideBar, setActiveSideBar] = useState("");
