@@ -87,8 +87,14 @@ const PaymentPage = () => {
       (distance) => distance.placeToplace === selected,
     );
     if (!dataSearch) return;
-    setData({ ...dataSearch });
-    setCalculatedFee(dataSearch.fee);
+    setData({
+      distanceSelected: dataSearch.placeToplace,
+      fee: dataSearch.fee as number, // Change the type of fee to number
+      placeToplace: dataSearch.placeToplace,
+      journeyDuration: dataSearch.journeyDuration,
+      miles: dataSearch.miles as number,
+    });
+    setCalculatedFee(dataSearch.fee as number);
   }, [selected]);
 
   //When Fees Changes, Re-render
