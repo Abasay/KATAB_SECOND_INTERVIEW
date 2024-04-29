@@ -1,5 +1,4 @@
 import dummyTransactions from "./dummyData";
-import { TransactionTable } from "./TransactionTable";
 
 const TransactionHistory = () => {
   return (
