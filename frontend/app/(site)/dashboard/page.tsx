@@ -2,8 +2,9 @@ import DashboardComp from "@/components/Dashboard/DashboardComp";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Login Page - Solid SaaS Boilerplate",
-  description: "This is Login page for Startup Pro",
+  title: "Dashboard Page | User Dashboard",
+  description:
+    "This is the Dashboard Page for Users to track their activities.",
   // other metadata
 };
 

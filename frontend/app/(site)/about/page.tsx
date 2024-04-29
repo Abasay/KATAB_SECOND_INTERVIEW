@@ -3,6 +3,12 @@ import { Metadata } from "next";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 
+export const metadata: Metadata = {
+  title: "About Page",
+  description: "This is the About Page",
+  // other metadata
+};
+
 export const AboutPage = () => {
   return (
     <>
