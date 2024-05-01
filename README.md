@@ -1,10 +1,18 @@
 # C&M Transport Services Website
 
-Welcome to the KATAB ROYALS' second interview frontend repository!
+Welcome to the KATAB ROYALS' second interview frontend and backend repository!
 
 ## Introduction
 
 This repository contains the frontend files for the KATAB ROYALS' second interview in building a full stack web app
+
+## WEBSITE LOGO
+
+<img src="./logo.png" alt="C&M Transport Services" style="border-radius: 50%; width: 200px; height: 200px;">
+
+## WEBSITE DEPLOYED
+
+![Image Alt Text]('./website.png')
 
 ## Features
 
