@@ -48,12 +48,12 @@ const PaymentPage = () => {
         setEstimatedMiles(Number(distance.toFixed(2))); // Convert distance to a number before setting it in the state
         setCalculatedFee(Math.floor(distance * AMOUNT_PER_MILE));
         setEstimatedDuration(Number((distance * DURATION_PER_MILE).toFixed(2)));
-        console.log(calculatedFee);
+        //console.log(calculatedFee);
 
         return distance || 0;
       });
     } else {
-      console.log("Geolocation is not supported by this browser.");
+      //console.log("Geolocation is not supported by this browser.");
       return 0;
     }
   };

@@ -35,7 +35,7 @@ const ProfilePage = () => {
 
       // Parsing the response JSON
       const response = await request.json();
-      console.log(response.data);
+      //console.log(response.data);
 
       // Updating state variables with user data if request is successful
       if (response.success) {

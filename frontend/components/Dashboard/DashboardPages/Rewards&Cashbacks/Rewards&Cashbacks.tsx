@@ -36,7 +36,7 @@ const RewardsAndCashbackHistory = () => {
         },
       );
       const data = await response.json();
-      console.log(data);
+      //console.log(data);
       // Update cashbacks state if data fetch is successful
       if (data.success) setCashbacks(data.data.cashbacksHistory);
     })();

@@ -32,9 +32,9 @@ app.use('/api/v1/auth', userRouter);
 app.use('/api/v1/transactions', transactionRouter);
 
 app.get('/', async (req, res) => {
-  console.log(req.body);
+  //console.log(req.body);
   req.body = '';
-  console.log(req.body);
+  //console.log(req.body);
   res.status(200).json({
     success: true,
     data: {
@@ -53,5 +53,5 @@ mongoConnect();
 cloudinaryConnect();
 
 app.listen(5050, () => {
-  console.log('Server is running on port: ' + PORT);
+  //console.log('Server is running on port: ' + PORT);
 });

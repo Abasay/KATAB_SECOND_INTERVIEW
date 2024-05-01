@@ -64,11 +64,11 @@ const Signup = () => {
 
           const response = await imageUploadReq.json();
           if (imageUploadReq.status === 413) {
-            //console.log("payload too much");
+            ////console.log("payload too much");
           }
           if (response.success) {
             setUploaded(true);
-            //console.log(response.data);
+            ////console.log(response.data);
             setUploading(false);
             setImg(response.data);
             setData({ ...data, profileImg: response.data });
@@ -159,7 +159,7 @@ const Signup = () => {
 
         const response = await uploadRequest.json();
         setMsg(response.data);
-        console.log(response);
+        //console.log(response);
         if (response.success) {
           setSuccess(true);
           setIsSigningIn(false);
@@ -189,7 +189,7 @@ const Signup = () => {
         error: <b>An error occured while creating your account.</b>,
       });
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -217,7 +217,7 @@ const Signup = () => {
           response
             .json()
             .then(async (data) => {
-              console.log(data.picture, data.name);
+              //console.log(data.picture, data.name);
               if (data.email) {
                 const request = await fetch(
                   `${process.env.NEXT_PUBLIC_BASEURL}${URLS.signupWithGoogle}`,
@@ -235,7 +235,7 @@ const Signup = () => {
                 );
 
                 const response = await request.json();
-                console.log(response);
+                //console.log(response);
                 if (response.data.email && response.data.token) {
                   Cookies.set("c&m-userEmail", data.email);
                   Cookies.set("c&m-isLoggedIn", true);

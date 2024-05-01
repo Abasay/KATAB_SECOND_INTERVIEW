@@ -51,7 +51,7 @@ const Header = () => {
         Cookies.remove("c&m-isLoggedIn");
       }
       const response = await request.json();
-      console.log(response.data);
+      //console.log(response.data);
       if (response.success) {
         setImage(response.data.user.profileImg);
       }
@@ -75,7 +75,7 @@ const Header = () => {
         Cookies.remove("c&m-isLoggedIn");
       }
       const response = await request.json();
-      console.log(response.data);
+      //console.log(response.data);
       if (response.success) {
         setImage(response.data.user.profileImg);
       }

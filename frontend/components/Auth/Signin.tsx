@@ -77,7 +77,7 @@ const Signin = () => {
           response
             .json()
             .then(async (data) => {
-              console.log(data.picture, data.name, data.email);
+              //console.log(data.picture, data.name, data.email);
               if (data.email) {
                 const request = await fetch(
                   `${process.env.NEXT_PUBLIC_BASEURL}${URLS.signinWithGoogle}`,
@@ -95,7 +95,7 @@ const Signin = () => {
                 );
 
                 const response = await request.json();
-                console.log(response);
+                //console.log(response);
                 if (response.success) {
                   Cookies.set("c&m-userEmail", data.email);
                   Cookies.set("c&m-isLoggedIn", true);
@@ -147,14 +147,14 @@ const Signin = () => {
 
         if (response.success) {
           setSuccess(true);
-          console.log(response);
+          //console.log(response);
           Cookies.set("c&m-userEmail", data.email);
           Cookies.set("c&m-isLoggedIn", true);
           Cookies.set("c&m-token", response.data.token);
           setSuccessSignIn(true);
           resolve(response);
         } else {
-          console.log(response);
+          //console.log(response);
           setErr(true);
           setErrMsg(response.data.message);
           reject();
@@ -167,7 +167,7 @@ const Signin = () => {
         error: <b>An error occured signing you in, please try again.</b>,
       });
     } catch (err) {
-      console.log(err);
+      //console.log(err);
     }
   };
 
