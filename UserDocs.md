@@ -68,6 +68,6 @@ Welcome to C&M Transport Services! This user manual will guide you through the s
 
 ## Additional Support
 
-If you encounter any issues or have questions about using C&M Transport Services, please contact our support team at [support email or contact form].
+If you encounter any issues or have questions about using C&M Transport Services, please contact us at abdulsalamasheem@gmail.com.
 
 Thank you for choosing C&M Transport Services! We hope you have a pleasant experience using our platform.
