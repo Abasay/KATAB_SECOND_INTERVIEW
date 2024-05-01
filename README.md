@@ -29,11 +29,14 @@ This repository contains the frontend files for the KATAB ROYALS' second intervi
 To run this website locally on your machine, follow these steps:
 
 1. Clone this repository to your local machine.
-2. Navigate to the project directory.
+2. Navigate to the project directory, then to the frontend.
 3. Install dependencies using `npm install`.
-4. Configure environment variables (if any).
-5. Start the server using `npm run server`.
-6. Access the website in your browser at `http://localhost:3000`.
+4. Repeat for the backend folder also.
+5. Configure environment variables (if any).
+6. Start the server using `npm run server` for the backend.
+7. Access the website in your browser at `http://localhost:5050` for the backend.
+8. Start the webste using `npm run dev` for the frontend.
+9. Access the website in your browser at `http://localhost:3000` for the frontend.
 
 ## Deployed Website URL (Frontend)
 
