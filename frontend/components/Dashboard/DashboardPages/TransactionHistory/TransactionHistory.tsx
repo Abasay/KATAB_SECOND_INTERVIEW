@@ -63,7 +63,7 @@ const TransactionHistory = () => {
         },
       );
       const data = await response.json();
-      console.log(data);
+      //console.log(data);
       if (data.success) setTransactions(data.data.transactions);
     })();
   }, []); // Empty dependency array to ensure useEffect runs only once after initial render
