@@ -28,7 +28,9 @@ const DashboardComp = () => {
   const userEmail = Cookies.get("c&m-userEmail");
   const token = Cookies.get("c&m-token");
   const isLoggedIn = Cookies.get("c&m-isLoggedIn");
-  if (!isLoggedIn || !token || !userEmail) router.push("/auth/signin");
+  useEffect(() => {
+    if (!isLoggedIn || !token || !userEmail) router.push("/auth/signin");
+  }, []);
 
   const [activeSideBar, setActiveSideBar] = useState("");
   const handleLinkClick = (hash: string) => {
