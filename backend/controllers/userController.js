@@ -3,6 +3,20 @@ const UserModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const { cloudinaryImageUpload } = require('../helpers/cloudinaryImageUpload');
 
+/**
+ * Registers a new user with the provided information.
+ * Route: POST /signup
+ * Body:
+ * {
+ *   "data": {
+ *     "firstName": "string",
+ *     "lastName": "string",
+ *     "email": "string",
+ *     "password": "string",
+ *     "profileImg": "string"
+ *   }
+ * }
+ */
 async function registerUser(req, res) {
   // await connectDB();
   const { firstName, lastName, email, password, profileImg } = req.body.data;
@@ -51,6 +65,16 @@ async function registerUser(req, res) {
   }
 }
 
+/**
+ * Registers a new user using Google authentication.
+ * Route: POST /signup/google
+ * Body:
+ * {
+ *   "name": "string",
+ *   "email": "string",
+ *   "image": "string"
+ * }
+ */
 async function googleRegisterUser(req, res) {
   // await connectDB();
 
@@ -109,6 +133,15 @@ async function googleRegisterUser(req, res) {
   }
 }
 
+/**
+ * Logs in a user with the provided credentials.
+ * Route: POST /login
+ * Body:
+ * {
+ *   "email": "string",
+ *   "password": "string"
+ * }
+ */
 const userLogin = async (req, res) => {
   const body = req.body;
   console.log(body);
@@ -159,6 +192,16 @@ const userLogin = async (req, res) => {
   }
 };
 
+/**
+ * Logs in a user with Google authentication.
+ * Route: POST /login/google
+ * Body:
+ * {
+ *   "email": "string",
+ *   "name": "string",
+ *   "image": "string"
+ * }
+ */
 const userLoginWithGoogle = async (req, res) => {
   const body = req.body;
   console.log(body);
@@ -206,6 +249,14 @@ const userLoginWithGoogle = async (req, res) => {
   }
 };
 
+/**
+ * Generates a URL for uploading user profile images to Cloudinary.
+ * Route: POST /user/image-url-generate
+ * Body:
+ * {
+ *   "image": "string in base64"
+ * }
+ */
 async function imageUrlGenerate(req, res) {
   const body = req.body;
   try {
@@ -222,6 +273,11 @@ async function imageUrlGenerate(req, res) {
     return res.status(500).json({ success: false, data: 'Failed to upload' });
   }
 }
+
+/**
+ * Retrieves user information by email.
+ * Route: GET /user/:userEmail
+ */
 
 const getUser = async (req, res) => {
   try {

@@ -15,7 +15,7 @@ This repository contains the frontend files for the KATAB ROYALS' second intervi
 
 ## Setup Instructions
 
-To run the NUESA website locally on your machine, follow these steps:
+To run this website locally on your machine, follow these steps:
 
 1. Clone this repository to your local machine.
 2. Navigate to the project directory.

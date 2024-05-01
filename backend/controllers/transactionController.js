@@ -2,7 +2,20 @@ const Transaction = require('../models/TransactionModel.js');
 const CashbackandMilesPoints = require('../models/Rewards&Cashbacks.js');
 const handleTransportIdCardGenerate = require('../middlewares/transportIdPDFFile.js');
 
-const transactionUpload = async (req, res) => {
+/**
+ * Uploads a transaction for the user and updates rewards.
+ * Route: POST /api/v1/transactions/upload
+ * Access: Private
+ * Body:
+ * {
+ *   "transactionId": "string",
+ *   "journey": "string",
+ *   "milesTravelled": "number",
+ *   "journeyDuration": "string",
+ *   "tfare": "number",
+ *   "trans": "string"
+ * }
+ */ const transactionUpload = async (req, res) => {
   try {
     const {
       transactionId,
@@ -110,6 +123,12 @@ const transactionUpload = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves transaction history for the user.
+ * Route: GET /api/v1/transactions/history
+ * Access: Private
+ */
+
 const transactionHistory = async (req, res) => {
   try {
     const user = req.user;
@@ -142,6 +161,11 @@ const transactionHistory = async (req, res) => {
   }
 };
 
+/**
+ * Retrieves cashbacks history for the user.
+ * Route: GET /api/v1/cashbacks/history
+ * Access: Private
+ */
 const cashbacks = async (req, res) => {
   try {
     const user = req.user;

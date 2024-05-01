@@ -181,16 +181,16 @@ const Contact = () => {
 
               <div className="5 mb-7">
                 <h3 className="mb-4 text-metatitle3 font-medium text-black dark:text-white">
-                  Our Loaction
+                  Our Location
                 </h3>
-                <p>Room 4 Opposite Student Admin.</p>
+                <p>RD A, IWOROKO, EKSU, Ado-Ekiti.</p>
               </div>
               <div className="5 mb-7">
                 <h3 className="mb-4 text-metatitle3 font-medium text-black dark:text-white">
                   Email Address
                 </h3>
                 <p>
-                  <a href="#">nuesa@gmail.com</a>
+                  <a href="#">abdulsalamasheem@gmail.com</a>
                 </p>
               </div>
               <div>

@@ -1,14 +1,17 @@
 # C&M Transport Services Website
 
-Welcome to the KATAB ROYALS' second interview backend repository!
+Welcome to the KATAB ROYALS' second interview frontend repository!
 
 ## Introduction
 
-This repository contains the backend files for the KATAB ROYALS' second interview in building a full stack web app
+This repository contains the frontend files for the KATAB ROYALS' second interview in building a full stack web app
 
 ## Features
 
 ## Technologies Used
+
+- **Frontend**: HTML, CSS, JavaScript, ReactJs, NextJs, TypeScript
+- **Deployment**: Vercel
 
 - **Backend**: NodeJs, ExpressJs, Cloudinary, MongoDb, jsonwebtoken
 - **Deployment**: Render
@@ -22,9 +25,13 @@ To run this website locally on your machine, follow these steps:
 3. Install dependencies using `npm install`.
 4. Configure environment variables (if any).
 5. Start the server using `npm run server`.
-6. Access the backend in your browser at `http://localhost:5050`.
+6. Access the website in your browser at `http://localhost:3000`.
 
-## Deployed Website URL (Backend)
+## Deployed Website URL (Frontend)
+
+- [text](https://candm-services.vercel.app/)
+
+## Deployed RESTFUL API URL (Backend)
 
 - [text](https://katab-second-interview.onrender.com/)
 
