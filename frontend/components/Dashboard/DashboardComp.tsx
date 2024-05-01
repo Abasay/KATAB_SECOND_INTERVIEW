@@ -13,14 +13,22 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import PaymentPage from "./DashboardPages/PaymentPage";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import { useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
 import TransactionHistory from "./DashboardPages/TransactionHistory/TransactionHistory";
 import RewardsAndCashbackHistory from "./DashboardPages/Rewards&Cashbacks/Rewards&Cashbacks";
+import ProfilePage from "./DashboardPages/Profile/ProfilePage";
 
 const DashboardComp = () => {
   const pathname = usePathname();
   const router = useRouter();
+
+  const userEmail = Cookies.get("c&m-userEmail");
+  const token = Cookies.get("c&m-token");
+  const isLoggedIn = Cookies.get("c&m-isLoggedIn");
+  // if (!isLoggedIn || !token || !userEmail) router.push("/auth/signin");
+
   const [activeSideBar, setActiveSideBar] = useState("");
   const handleLinkClick = (hash: string) => {
     setActiveSideBar(hash);
@@ -51,8 +59,8 @@ const DashboardComp = () => {
           <div className="flex-1 overflow-auto py-2">
             <nav className="grid items-start px-4 text-[16px] font-medium">
               <Link
-                onClick={() => handleLinkClick("#transaction-history")}
-                href={"#transaction-history"}
+                onClick={() => handleLinkClick("")}
+                href={"/dashboard"}
                 className={clsx(
                   "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
                   {
@@ -107,6 +115,7 @@ const DashboardComp = () => {
         </div>
       </div>
       <div className=" md:ml-60 md:overflow-hidden">
+        {activeSideBar === "" && <ProfilePage />}
         {activeSideBar === "#payment" && <PaymentPage />}
         {activeSideBar === "#transaction-history" && (
           <div className=" w-full overflow-hidden">

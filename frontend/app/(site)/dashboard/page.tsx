@@ -1,5 +1,7 @@
 import DashboardComp from "@/components/Dashboard/DashboardComp";
 import { Metadata } from "next";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
 
 export const metadata: Metadata = {
   title: "Dashboard Page | User Dashboard",

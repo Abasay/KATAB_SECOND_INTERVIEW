@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { get } from "http";
 import { States } from "../Datas/statesDatas";
 
-const AMOUNT_PER_MILE = 1;
+const AMOUNT_PER_MILE = 10;
 const DURATION_PER_MILE = 1;
 const PaymentPage = () => {
   //Payment Page Component
@@ -422,8 +422,28 @@ const PaymentPage = () => {
           )}
         </div>
         <div className="float-right mr-5">
-          {selectedState && <PayStack amount={amount * 100} />}
-          {selected && <PayStack amount={amount * 100} />}
+          {selectedState && (
+            <PayStack
+              amount={amount * 100}
+              paymentDetails={{
+                placeToJourney: stateData.name,
+                fee: calculatedFee,
+                journeyDuration: estimatedDuration,
+                miles: estimatedMiles,
+              }}
+            />
+          )}
+          {selected && (
+            <PayStack
+              amount={amount * 100}
+              paymentDetails={{
+                placeToJourney: data.placeToplace,
+                fee: data.fee,
+                journeyDuration: data.journeyDuration,
+                miles: data.miles,
+              }}
+            />
+          )}
         </div>
       </div>
     </>

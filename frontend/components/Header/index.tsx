@@ -19,18 +19,6 @@ const Header = () => {
   const pathUrl = usePathname();
   const router = useRouter();
 
-  const checkSignedIn = (item) => {
-    return item.title !== "Sign Up" && item.title !== "Sign In"
-      ? true
-      : Cookies.get("c&m-token")
-      ? false
-      : true;
-  };
-
-  const checkIsAdmin = (item) => {
-    return item.title === "Admin Panel" && isAdmin ? true : false;
-  };
-
   // Sticky menu
   const handleStickyMenu = () => {
     if (window.scrollY >= 80) {
@@ -40,9 +28,7 @@ const Header = () => {
     }
   };
   const userEmail = Cookies.get("c&m-userEmail");
-  const [isAdmin, setIsAdmin] = useState(false);
   const token = Cookies.get("c&m-token");
-  console.log(userEmail);
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyMenu);
@@ -67,8 +53,7 @@ const Header = () => {
       const response = await request.json();
       console.log(response.data);
       if (response.success) {
-        setIsAdmin(response.data.user.isAdmin);
-        console.log(isAdmin);
+        setImage(response.data.user.profileImg);
       }
     })();
   }, [pathUrl]);
@@ -93,8 +78,6 @@ const Header = () => {
       console.log(response.data);
       if (response.success) {
         setImage(response.data.user.profileImg);
-        setIsAdmin(response.data.user.isAdmin);
-        console.log(isAdmin);
       }
     })();
   }, []);

@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import Contact from "@/components/Contact";
 
 import Features from "@/components/Features";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "C&M Transport Services - Reliable Transportation Services",
@@ -19,6 +20,7 @@ export default function Home() {
       <Hero />
 
       <Features />
+      <Footer />
       {/* <Contact /> */}
     </main>
   );

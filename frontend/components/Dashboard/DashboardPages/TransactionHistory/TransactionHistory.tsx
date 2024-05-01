@@ -1,6 +1,47 @@
+import { useEffect, useState } from "react";
 import dummyTransactions from "./dummyData";
+import Cookies from "js-cookie";
+import { URLS } from "@/lib/urls";
 
 const TransactionHistory = () => {
+  const userEmail = Cookies.get("c&m-userEmail");
+  const [transactions, setTransactions] = useState([]);
+
+  //Format Date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+
+    // Format the date
+    const formattedDate = `${date.getFullYear()}-${padZero(
+      date.getMonth() + 1,
+    )}-${padZero(date.getDate())}`;
+    const formattedTime = `${padZero(date.getHours() % 12 || 12)}:${padZero(
+      date.getMinutes(),
+    )} ${date.getHours() >= 12 ? "PM" : "AM"}`;
+
+    return `${formattedDate} ${formattedTime}`;
+  };
+
+  const padZero = (number) => {
+    return number < 10 ? `0${number}` : number;
+  };
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}${URLS.transactionHistory}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("c&m-token")}`,
+          },
+        },
+      );
+      const data = await response.json();
+      console.log(data);
+      if (data.success) setTransactions(data.data.transactions);
+    })();
+  }, []);
   return (
     <>
       <div className="pb-25">
@@ -141,13 +182,13 @@ const TransactionHistory = () => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   >
-                    Miles Traveled
+                    Miles Traveled (miles)
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   >
-                    Journey Duration
+                    Journey Duration (Hours)
                   </th>
                   <th
                     scope="col"
@@ -169,37 +210,58 @@ const TransactionHistory = () => {
                   </th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-gray-200 bg-white">
-                {dummyTransactions.map((transaction) => (
-                  <tr key={transaction.id}>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {transaction.id}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {transaction.dateTime}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {transaction.destination}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {transaction.milesTraveled}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {transaction.journeyDuration}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {transaction.paymentAmount}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">Yes</td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <button className="text-indigo-600 hover:text-indigo-900">
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {transactions?.length > 0 &&
+                  transactions.map(
+                    (transaction: {
+                      transactionId: string;
+                      date: string;
+                      journey: string;
+                      milesTravelled: number;
+                      journeyDuration: string;
+                      tfare: number;
+                      transportPDFUrl: string;
+                    }) => (
+                      <tr key={transaction.transactionId}>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {transaction.transactionId}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {formatDate(transaction.date)}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {transaction.journey}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {transaction.milesTravelled}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {transaction.journeyDuration}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {transaction.tfare}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">Yes</td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <a
+                            href={transaction.transportPDFUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <button className="text-indigo-600 hover:text-indigo-900">
+                              Download TransportID
+                            </button>
+                          </a>
+                        </td>
+                      </tr>
+                    ),
+                  )}
               </tbody>
             </table>
+            {transactions?.length === 0 && (
+              <div className="w-full text-center">No transactions found</div>
+            )}
           </div>
         </div>
       </div>

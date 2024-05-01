@@ -6,4 +6,7 @@ export const URLS = {
   uploadImage: "/auth/user/image-url-generate", // Upload Image
   signinWithGoogle: "/auth/login/google", // Sign In with Google
   signupWithGoogle: "/auth/signup/google", // Sign Up with Google
+  transactionUpload: "/transactions/transaction/upload", // Upload Transaction
+  transactionHistory: "/transactions/transaction/history", // Transaction History
+  cashbackHistory: "/transactions/transaction/cashbacks", // Cashback History
 };
