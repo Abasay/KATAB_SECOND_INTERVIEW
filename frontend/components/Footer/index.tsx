@@ -119,7 +119,10 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#" aria-label="social icon">
+                  <a
+                    href="https://twitter.com/Abdulsalam55369"
+                    aria-label="social icon"
+                  >
                     <svg
                       className="fill-[#D1D8E0] transition-all duration-300 hover:fill-primary"
                       width="24"
@@ -143,7 +146,10 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#" aria-label="social icon">
+                  <a
+                    href="https://www.linkedin.com/in/asheem-abdulsalam-133782153/"
+                    aria-label="social icon"
+                  >
                     <svg
                       className="fill-[#D1D8E0] transition-all duration-300 hover:fill-primary"
                       width="24"
