@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const Dashboard = () => {
   return (
     <>
+      {/* The Dashboard Component */}
       <DashboardComp />
     </>
   );

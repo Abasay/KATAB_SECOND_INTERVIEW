@@ -1,3 +1,4 @@
+//imports
 import Signup from "@/components/Auth/Signup";
 import { Metadata } from "next";
 
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function Register() {
   return (
     <>
+      {/* The SignUp Component */}
       <Signup />
     </>
   );

@@ -1,7 +1,9 @@
+//IMPORTS
 import { useEffect, useState } from "react";
 import dummyTransactions from "./dummyData";
 import Cookies from "js-cookie";
 import { URLS } from "@/lib/urls";
+import jsPDF from "jspdf";
 
 const TransactionHistory = () => {
   const userEmail = Cookies.get("c&m-userEmail");
@@ -26,6 +28,29 @@ const TransactionHistory = () => {
     return number < 10 ? `0${number}` : number;
   };
 
+  const handleDownload = (transportId, transactionId) => {
+    // Create a new jsPDF instance
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: [400, 300],
+    });
+
+    // Calculate the center position
+    const textWidth =
+      (doc.getStringUnitWidth("Transaction Details:") *
+        doc.internal.pageSize.getWidth()) /
+      doc.internal.scaleFactor;
+    const marginLeft = (400 - textWidth) / 2;
+    // Add content to the PDF document
+    doc.text("Thanks for partronizing us!!!", 10, 15);
+    doc.text(`Here is your transport ID: ${transportId}`, 10, 25);
+    // Add more transaction details as needed
+
+    // Save the PDF with a filename
+    doc.save(`trans_${transactionId}.pdf`);
+  };
+
   useEffect(() => {
     (async () => {
       const response = await fetch(
@@ -41,12 +66,15 @@ const TransactionHistory = () => {
       console.log(data);
       if (data.success) setTransactions(data.data.transactions);
     })();
-  }, []);
+  }, []); // Empty dependency array to ensure useEffect runs only once after initial render
+
+  // JSX Markup for the Transaction History Page UI
   return (
     <>
       <div className="pb-25">
         <h2 className="flex flex-row items-center gap-4 p-7 text-3xl font-bold tracking-wider text-black">
           <span>
+            {/* SVG icons */}
             <svg
               width="100px"
               height="100px"
@@ -154,10 +182,10 @@ const TransactionHistory = () => {
           <h2 className="my-4 text-xl font-semibold tracking-widest text-black">
             Your Transaction history
           </h2>
-          {/* <TransactionTable users={[]} offset={2} /> */}
 
           <div className="conatiner overflow-auto">
             <table className=" table-auto divide-y divide-gray-200 ">
+              {/* Transaction History Table Headers */}
               <thead className="bg-gray-50">
                 <tr>
                   <th
@@ -212,6 +240,7 @@ const TransactionHistory = () => {
               </thead>
 
               <tbody className="divide-y divide-gray-200 bg-white">
+                {/* Transaction History Table Body */}
                 {transactions?.length > 0 &&
                   transactions.map(
                     (transaction: {
@@ -222,6 +251,7 @@ const TransactionHistory = () => {
                       journeyDuration: string;
                       tfare: number;
                       transportPDFUrl: string;
+                      transportId: string;
                     }) => (
                       <tr key={transaction.transactionId}>
                         <td className="whitespace-nowrap px-6 py-4">
@@ -244,15 +274,22 @@ const TransactionHistory = () => {
                         </td>
                         <td className="whitespace-nowrap px-6 py-4">Yes</td>
                         <td className="whitespace-nowrap px-6 py-4">
-                          <a
-                            href={transaction.transportPDFUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          {/* <a href={transaction.transportPDFUrl} download>
                             <button className="text-indigo-600 hover:text-indigo-900">
                               Download TransportID
                             </button>
-                          </a>
+                          </a> */}
+                          <button
+                            onClick={() =>
+                              handleDownload(
+                                transaction.transportId,
+                                transaction.transactionId,
+                              )
+                            }
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Download TransportID
+                          </button>
                         </td>
                       </tr>
                     ),

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { URLS } from "@/lib/urls";
-
+// Define the RewardsAndCashbackHistory component
 const RewardsAndCashbackHistory = () => {
+  // State variable to store cashbacks data
   const [cashbacks, setCashbacks] = useState([]);
 
   const formatDate = (dateString) => {
@@ -36,14 +37,18 @@ const RewardsAndCashbackHistory = () => {
       );
       const data = await response.json();
       console.log(data);
+      // Update cashbacks state if data fetch is successful
       if (data.success) setCashbacks(data.data.cashbacksHistory);
     })();
   }, []);
+
+  // JSX markup for displaying cashbacks history
   return (
     <>
       <div className="pb-25">
         <h2 className="flex flex-row items-center gap-4 p-7 text-3xl font-bold tracking-wider text-black">
           <span>
+            {/* SVG icon */}
             <svg
               width="100px"
               height="100px"
@@ -188,6 +193,7 @@ const RewardsAndCashbackHistory = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto divide-y divide-gray-200">
               <thead className="bg-gray-50">
+                {/* Table header */}
                 <tr>
                   <th
                     scope="col"
@@ -242,6 +248,7 @@ const RewardsAndCashbackHistory = () => {
                   </th>
                 </tr>
               </thead>
+              {/* Table body */}
               <tbody className="divide-y divide-gray-200 bg-white">
                 {cashbacks.length > 0 &&
                   cashbacks.map(

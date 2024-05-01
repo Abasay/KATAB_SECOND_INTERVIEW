@@ -7,7 +7,8 @@ import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "C&M Transport Services - Reliable Transportation Services",
+  title:
+    "C&M Transport Services - Reliable Transportation Services With Cashbacks and Miles Points",
   description:
     "C&M Transport Services offers convenient and efficient transportation services for all your needs. Book your ride today!",
   keywords: ["transportation", "transit", "ride sharing", "travel", "commute"],

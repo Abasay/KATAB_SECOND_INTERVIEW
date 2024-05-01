@@ -1,3 +1,4 @@
+//IMPORTS
 import Signin from "@/components/Auth/Signin";
 import { Metadata } from "next";
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 const SigninPage = () => {
   return (
     <>
+      {/* The Sign In Component */}
       <Signin />
     </>
   );

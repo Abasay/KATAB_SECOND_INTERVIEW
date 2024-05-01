@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`dark:bg-black ${inter.className}`}>
+      <body className={` ${inter.className}`}>
         <GoogleOAuthProvider
           clientId={`${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`}
         >
