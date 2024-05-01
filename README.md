@@ -12,7 +12,7 @@ This repository contains the frontend files for the KATAB ROYALS' second intervi
 
 ## WEBSITE DEPLOYED
 
-<img src="./logo.png" alt="C&M Transport Services" style="">
+<img src="./website.png" alt="C&M Transport Services" style="">
 
 ## Features
 
