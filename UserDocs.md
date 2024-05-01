@@ -43,7 +43,7 @@ Welcome to C&M Transport Services! This user manual will guide you through the s
 
 ![Select Destination](destination_selection_2.png)
 
-3. The transport fare will be calculated automatically at ₦10 per mile, and the duration at 0.5 hours per mile.
+3. The transport fare will be calculated automatically at ₦10 per mile, and the duration at 0.005 hours per mile.
 4. Click on the "Make Payment" button to proceed.
 
 ![Payment Button](payment_button.png)

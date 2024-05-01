@@ -6,7 +6,7 @@ import { get } from "http";
 import { States } from "../Datas/statesDatas";
 
 const AMOUNT_PER_MILE = 10;
-const DURATION_PER_MILE = 1;
+const DURATION_PER_MILE = 0.005;
 const PaymentPage = () => {
   //Payment Page Component
   const [data, setData] = useState({
