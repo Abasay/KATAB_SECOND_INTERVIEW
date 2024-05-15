@@ -6,7 +6,9 @@ Welcome to the KATAB ROYALS' second interview frontend repository!
 
 This repository contains the frontend files for the KATAB ROYALS' second interview in building a full stack web app
 
-## Features
+## Security and FireWall:
+
+    The Security functionality implemented for this website was done using jsonwebtoken(jwt). This
 
 ## Technologies Used
 
