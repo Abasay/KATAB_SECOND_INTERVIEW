@@ -256,8 +256,9 @@ const PaymentPage = () => {
               </p>
             </div>
             <p className=" max-w-[300px] text-[14px] md:max-w-[500px]">
-              After Payment, an ID will be given to you, take this ID to our BUS
-              terminal and you shall be able to board a bus successfully.
+              After Payment, go to the transaction history and download your
+              receipt, take this receipt to our BUS terminal and you shall be
+              able to board a bus successfully.
             </p>
           </div>
           <div className="flex flex-row items-center gap-4 text-black">
