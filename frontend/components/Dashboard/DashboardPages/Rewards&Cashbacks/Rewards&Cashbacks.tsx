@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { URLS } from "@/lib/urls";
+import TotalCashbackAndMilesPoints from "../../Totals/TotalCashbackAndMilesPoints";
 // Define the RewardsAndCashbackHistory component
 const RewardsAndCashbackHistory = () => {
   // State variable to store cashbacks data
   const [cashbacks, setCashbacks] = useState([]);
+  const [totals, setTotals] = useState({
+    cashback: 0,
+    milespoint: 0,
+  });
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -38,7 +43,29 @@ const RewardsAndCashbackHistory = () => {
       const data = await response.json();
       //console.log(data);
       // Update cashbacks state if data fetch is successful
-      if (data.success) setCashbacks(data.data.cashbacksHistory);
+      if (data.success) {
+        setCashbacks(data.data.cashbacksHistory);
+        const totalCashbackCalculate = data?.data?.cashbacksHistory?.reduce(
+          (acc, curr) => {
+            return {
+              cashback: acc.cashback + (curr.cashback || 0),
+              milespoint: acc.milespoint + (curr.milesPoints || 0),
+            };
+          },
+          {
+            cashback: 0,
+            milespoint: 0,
+          },
+        ) || {
+          cashback: 0,
+          milespoint: 0,
+        };
+
+        setTotals({
+          cashback: totalCashbackCalculate.cashback,
+          milespoint: totalCashbackCalculate.milespoint,
+        });
+      }
     })();
   }, []);
 
@@ -187,6 +214,9 @@ const RewardsAndCashbackHistory = () => {
         </h2>
 
         <div className="w-full  px-10">
+          <div>
+            <TotalCashbackAndMilesPoints totals={totals} />
+          </div>
           <h2 className="my-4 text-xl font-semibold tracking-widest text-black">
             Your Rewards and Cashbacks History.
           </h2>
@@ -229,7 +259,7 @@ const RewardsAndCashbackHistory = () => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   >
-                    Reward Earned (Mile)
+                    Miles Point Earned (Mile)
                   </th>
                   {/* <th
                     scope="col"

@@ -52,6 +52,7 @@ module.exports = {
         sectiontitle2: ["40px", "52px"],
         sectiontitle4: ["34px", "48px"],
       },
+
       spacing: {
         4.5: "1.125rem",
         5.5: "1.375rem",

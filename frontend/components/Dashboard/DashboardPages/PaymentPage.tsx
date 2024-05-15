@@ -277,7 +277,7 @@ const PaymentPage = () => {
           <h4 className=" text-xl font-semibold tracking-wider text-black">
             Get Started
           </h4>
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-row items-center gap-4">
             <span className=" font-medium text-black">
               Please select from these list:
             </span>
@@ -291,13 +291,17 @@ const PaymentPage = () => {
                 setSelectedState("");
                 setSelected(e.target.value);
               }}
-              className=" w-full flex-row gap-4 border-b border-stroke bg-transparent pb-3.5 text-black focus:border-waterloo focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
-              placeholder="From and Where are you going?"
+              className=" w-[50%] flex-row gap-4  rounded-md border-b border-stroke bg-slate-100 pb-3.5 pl-2 pt-2 text-black transition duration-700 focus:rounded-lg focus:border-waterloo focus:bg-transparent focus:pt-1 focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white "
+              placeholder=""
             >
               <option
+                className="text-[12px] text-gray-300 "
                 value=""
-                placeholder="From and Where are you going?"
-              ></option>
+                disabled
+                selected
+              >
+                From and Where are you going?
+              </option>
               {DistanceData.map((distance) => {
                 return <option>{distance.placeToplace}</option>;
               })}
@@ -337,20 +341,27 @@ const PaymentPage = () => {
             </p>
           </div>
           {selectDestination && (
-            <div className="flex flex-row gap-4">
+            <div className="mr-4 flex flex-row items-center gap-4">
               <span className=" font-medium text-black">
-                Please select your destination state from these list:
+                Please select your destination:
               </span>
               <select
                 name="state"
                 id="state"
-                value={selected}
+                value={selectedState}
                 required
                 onChange={(e) => setSelectedState(e.target.value)}
-                className=" w-full flex-row gap-4 border-b border-stroke bg-transparent pb-3.5 text-black focus:border-waterloo focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
-                placeholder="Destination State?"
+                className=" w-[50%] flex-row gap-4  rounded-md border-b border-stroke bg-slate-100 pb-3.5 pl-2 pt-2 text-black transition duration-700 focus:rounded-lg focus:border-waterloo focus:bg-transparent focus:pt-1 focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white "
+                placeholder=""
               >
-                <option value="" placeholder="Destination State?"></option>
+                <option
+                  className="text-[12px] text-gray-300 "
+                  value=""
+                  disabled
+                  selected
+                >
+                  Where are you going?
+                </option>
                 {States.map((state) => {
                   return <option>{state.name}</option>;
                 })}

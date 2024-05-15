@@ -4,7 +4,15 @@ import dummyTransactions from "./dummyData";
 import Cookies from "js-cookie";
 import { URLS } from "@/lib/urls";
 import jsPDF from "jspdf";
+import "jspdf-autotable";
+import html2canvas from "html2canvas";
 
+interface TransportDetails {
+  fareAmount: string;
+  date: string;
+  destination: string;
+  distance: string;
+}
 const TransactionHistory = () => {
   const userEmail = Cookies.get("c&m-userEmail");
   const [transactions, setTransactions] = useState([]);
@@ -28,27 +36,104 @@ const TransactionHistory = () => {
     return number < 10 ? `0${number}` : number;
   };
 
-  const handleDownload = (transportId, transactionId) => {
-    // Create a new jsPDF instance
+  const handleDownload = async (
+    transportId,
+    fareAmount,
+    date,
+    destination,
+    distance,
+  ) => {
+    // Create a new jsPDF instance with custom page dimensions and layout settings
     const doc = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: [400, 300],
+      orientation: "portrait", // Set orientation to portrait
+      unit: "mm", // Use millimeters as the unit of measurement
+      format: [120, 200], // Set custom page size [width, height] in millimeters
     });
 
-    // Calculate the center position
-    const textWidth =
-      (doc.getStringUnitWidth("Transaction Details:") *
-        doc.internal.pageSize.getWidth()) /
-      doc.internal.scaleFactor;
-    const marginLeft = (400 - textWidth) / 2;
-    // Add content to the PDF document
-    doc.text("Thanks for partronizing us!!!", 10, 15);
-    doc.text(`Here is your transport ID: ${transportId}`, 10, 25);
-    // Add more transaction details as needed
+    // Logo
+    const logo = "/images/logo/logo.png"; // Replace with your logo path or base64 string
 
-    // Save the PDF with a filename
-    doc.save(`trans_${transactionId}.pdf`);
+    // Load logo image and adjust its size
+    const imgData = await new Promise<string>((resolve, reject) => {
+      const img = new Image();
+      img.src = logo;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSide = Math.max(img.width, img.height);
+        canvas.width = maxSide;
+        canvas.height = maxSide;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          // Draw image centered in canvas
+          const offsetX = (maxSide - img.width) / 2;
+          const offsetY = (maxSide - img.height) / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(maxSide / 2, maxSide / 2, maxSide / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(img, offsetX, offsetY);
+          ctx.restore();
+          resolve(canvas.toDataURL("image/png"));
+        } else {
+          reject(new Error("Failed to get canvas context"));
+        }
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+    });
+
+    // Document Styles
+    doc.setFontSize(10);
+    doc.setTextColor("#333");
+
+    // Add logo at the top
+    doc.addImage(imgData, "PNG", 35, 5, 50, 50); // Adjust position and size as needed
+
+    // Document Title
+    doc.setFontSize(16);
+    doc.text("Transport Fare Receipt", 60, 70, { align: "center" });
+
+    // Contact Information
+    doc.setFontSize(8);
+    doc.text("CandM Transport Services", 60, 80, { align: "center" });
+    doc.text("111222, Mokola, Ibadan, ST 12345", 60, 85, { align: "center" });
+    doc.text("Phone: (+234) 08064611398", 60, 90, { align: "center" });
+    doc.text("Email: abdulsalamasheem@gmail.com", 60, 95, { align: "center" });
+
+    // Line break
+    doc.setLineWidth(0.3);
+    doc.line(10, 100, 110, 100);
+
+    // Transport ID
+    doc.setFontSize(10);
+    doc.setTextColor("#007BFF");
+    doc.text(`Transport ID: ${transportId}`, 60, 105, { align: "center" });
+
+    // Details Table
+    doc.autoTable({
+      startY: 110,
+      head: [["Description", "Details"]],
+      body: [
+        ["Transport Fare Amount", `#${fareAmount}`],
+        ["Date", date],
+        ["Destination", destination],
+        ["Distance (miles)", distance],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: "#333", textColor: "#FFF" },
+      bodyStyles: { textColor: "#333" },
+    });
+
+    // Thank you note
+    const finalY = (doc as any).lastAutoTable.finalY || 110;
+    doc.setFontSize(12);
+    doc.setTextColor("#000000");
+    doc.text("Thank you for choosing our service!", 60, finalY + 10, {
+      align: "center",
+    });
+
+    // Save PDF
+    doc.save("candm_transport_fare_receipt.pdf");
   };
 
   useEffect(() => {
@@ -283,10 +368,14 @@ const TransactionHistory = () => {
                             onClick={() =>
                               handleDownload(
                                 transaction.transportId,
-                                transaction.transactionId,
+
+                                transaction.tfare,
+                                formatDate(transaction.date),
+                                transaction.journey,
+                                transaction.milesTravelled,
                               )
                             }
-                            className="text-indigo-600 hover:text-indigo-900"
+                            className="text-indigo-600 hover:text-indigo-900 active:text-red-600"
                           >
                             Download TransportID
                           </button>
