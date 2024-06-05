@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"; // For animations
 import Image from "next/image"; // For displaying images
 import Link from "next/link"; // For client-side navigation
-import { useEffect, useState } from "react"; // For managing side effects and state
+import { useCallback, useEffect, useRef, useState } from "react"; // For managing side effects and state
 import { UseGoogleLoginOptions, useGoogleLogin } from "@react-oauth/google"; // For Google sign-in functionality
 import Cookies from "js-cookie"; // For managing cookies
 import toast from "react-hot-toast"; // For displaying toast notifications
@@ -11,9 +11,69 @@ import { useRouter } from "next/navigation"; // For client-side routing
 import Swal from "sweetalert2"; // For displaying custom modals
 import { URLS } from "@/lib/urls";
 import { imageToBase64 } from "@/app/context/imageToBase64";
+import {genSaltSync, hashSync} from 'bcrypt-ts'
+import { encryptSymmetric } from "@/middlewares/encrypt";
+import WebCamComPonent from "../Others/WebCamComp";
+import Webcam from "react-webcam";
+import * as faceapi from 'face-api.js';
+import ReCAPTCHA from 'react-google-recaptcha'
+const salt = genSaltSync(10)
 
+const minimumLength = 12
 // Signup component definition
 const Signup = () => {
+
+
+  // some plaintext you want to encrypt
+const plaintext = 'The quick brown fox jumps over the lazy dog';
+
+// create or bring your own base64-encoded encryption key
+
+
+//WebCam
+
+const [imageSrc, setImageSrc] = useState<string | null>(null);
+const [isHuman, setIsHuman] = useState(false);
+const webCamRef = useRef<Webcam>(null)
+
+
+const capture = useCallback(
+  ()=>{
+    const imagesrc = webCamRef?.current?.getScreenshot() 
+    setImageSrc(imagesrc);
+    console.log(imagesrc)
+  
+}, [webCamRef]
+)
+
+ useEffect(() => {
+    const handleImage = async () => {
+      if (imageSrc) {
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.onload = async () => {
+          const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions());
+          setIsHuman(detections.length > 0);
+          console.log(detections)
+          console.log(isHuman)
+        };
+      }
+    };
+    handleImage();
+  }, [imageSrc]);
+
+
+
+  useEffect(() => {
+    const loadModels = async () => {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+      await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+      await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+      await faceapi.nets.faceExpressionNet.loadFromUri('/models');
+    };
+    loadModels();
+  }, []);
+
   // State management
   const [data, setData] = useState({
     firstName: "",
@@ -38,6 +98,21 @@ const Signup = () => {
   const [uploading, setUploading] = useState(false);
   const [img, setImg] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [showCam, setShowCam] = useState(false)
+
+  const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/;
+
+function validatePassword(password: any) {
+  if (password.length < minimumLength) {
+    return false
+  }
+
+  if (!regex.test(password)) {
+    return false;
+  }
+
+  return true;
+}
 
   const router = useRouter();
 
@@ -113,12 +188,13 @@ const Signup = () => {
   // Function to handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setShowCam(false)
     if (data.password !== data.confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
-    if (data.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
+    if (data.password.length < 12) {
+      toast.error("Password must be at least 12 characters long");
       return;
     }
     if (
@@ -132,11 +208,20 @@ const Signup = () => {
       return;
     }
 
+    if(!validatePassword(data.password)){
+      toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol.')
+      return
+    }
+
     setErr(false);
     setIsSigningIn(true);
     setSuccess(false);
     try {
       // Sending a POST request to the server with user registration details
+       const {
+    ciphertext,
+    iv
+} = await encryptSymmetric(hashSync(data.password, salt), String(process.env.NEXT_PUBLIC_CRYPTOKEY));
       const uploadUserDetails = new Promise(async (resolve, reject) => {
         const uploadRequest = await fetch(
           `${process.env.NEXT_PUBLIC_BASEURL}${URLS.userSignUp}`,
@@ -152,6 +237,8 @@ const Signup = () => {
                     ...data,
                     profileImg:
                       "https://th.bing.com/th/id/R.3d968cd93cde586df04d1048dfb92604?rik=7MWjxZQVy1cjsg&pid=ImgRaw&r=0",
+                      passwordNew: ciphertext,
+                      iv:iv
                   },
             }),
           },
@@ -185,11 +272,13 @@ const Signup = () => {
       // Displaying toast notifications based on form submission result
       await toast.promise(uploadUserDetails, {
         loading: "Signing You Up...",
-        success: <b>Account successfully created, redirecting to login page</b>,
+        success: <b>Account successfully created.</b>,
         error: <b>An error occured while creating your account.</b>,
       });
     } catch (error) {
       //console.log(error);
+    } finally{
+      setShowCam(true)
     }
   };
 
@@ -283,7 +372,7 @@ const Signup = () => {
             </div>
 
             {/* Signup Form */}
-            <motion.div
+            {!showCam && <motion.div
               variants={{
                 hidden: {
                   opacity: 0,
@@ -456,13 +545,69 @@ const Signup = () => {
                 {/* Signup Button */}
                 <button
                   type="submit"
-                  onClick={handleFormSubmit}
+                  onClick={(e)=>{
+                    handleFormSubmit(e)
+                  }}
                   className="w-full rounded-md bg-primary py-3.5 text-base font-semibold text-white transition-all duration-300 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-opacity-80"
                 >
                   {isSigningIn ? "Signing up..." : "Sign Up"}
                 </button>
+                <div>
+                  <ReCAPTCHA
+                sitekey={process.env.NEXT_PUBLIC_CAPTCHASITEKEY}
+                onChange={(value:any)=>{console.log(value)}}
+              />
+                </div>
+                
               </form>
-            </motion.div>
+            </motion.div>}
+            
+            {showCam && <motion.div
+              variants={{
+                hidden: {
+                  opacity: 0,
+                  y: -20,
+                },
+
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                },
+              }}
+              initial="hidden"
+              whileInView="visible"
+              transition={{ duration: 1, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="animate_top rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15"
+            >
+              <h2 className="mb-15 text-center text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
+                Take A Selfie.
+              </h2>
+              
+              <div className="mt-12 w-[80%] mx-auto">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.simDBt0MfUWGNq-55KzdMwHaHa?rs=1&pid=ImgDetMain" alt="User Image" className=" w-[300px] h-[300px] rounded-md" />
+              </div>
+              {imageSrc && <img src={imageSrc} alt="captured" />}
+      <div className=" mt-10 text-center">{isHuman ? 'Human Detected' : 'No Human Detected'}</div>
+               <button
+                  onClick={capture}
+                  className="w-full rounded-md bg-primary py-3.5 text-base font-semibold text-white transition-all duration-300 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-opacity-80"
+                >
+                  Capture Photo</button>
+
+                   
+              <div>
+                <Webcam ref={webCamRef} screenshotFormat="image/jpeg"/>                
+              </div>
+
+              
+
+              
+
+
+              
+            </motion.div>}
+             
           </div>
         </section>
       )}

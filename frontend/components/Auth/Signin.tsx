@@ -10,6 +10,7 @@ import { useGoogleLogin } from "@react-oauth/google"; // Import useGoogleLogin h
 import Swal from "sweetalert2"; // Import Swal for displaying alert messages
 import Footer from "../Footer";
 import { URLS } from "@/lib/urls";
+import { encryptSymmetric } from "@/middlewares/encrypt";
 
 /**
  * Signin component for handling user signin functionality.
@@ -32,6 +33,17 @@ const Signin = () => {
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [successSignIn, setSuccessSignIn] = useState(false);
+  const [forgetPasswd, setForgetPasswd] = useState(false)
+  const [enterToken, setEnterToken] = useState(false)
+   const [secret, setSecret] = useState<string>('');
+  const [tokenNew, setToken] = useState<string>('');
+  const [verificationMessage, setVerificationMessage] = useState<string>('');
+
+  const [emailNew, setEmail] = useState<string>('');
+  const [isLOGGEDiN, setIsLOGGEDiN] = useState<boolean>(false);
+  const [tokennew, setTokenNew] = useState<string>('');
+  const [enterOtp, setEnterOtp] = useState<boolean>(false);
+  const [hideLogin, setHideLogin] = useState<boolean>(false);
 
   // Redirect user if already logged in
   useEffect(() => {
@@ -123,11 +135,102 @@ const Signin = () => {
     onError: (error) => toast.error("Login Failed: " + error.error_description),
   });
 
+  const handleResetPassword = async(e)=>{
+    e.preventDefault();
+    const loginRequest = new Promise(async (resolve, reject) => {
+        setErr(false);
+        const request = await fetch(
+          `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/forgetpassword`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: data.email,
+            }),
+          },
+        );
+        const response = await request.json();
+      if (response.success) {
+        
+          resolve(response);
+        } else {
+          //console.log(response);
+          setErr(true);
+          setErrMsg(response.data);
+          reject();
+        }
+      });
+
+      await toast.promise(loginRequest, {
+        loading: "Requesting reset link...",
+        success: <b>Link successfully sent.</b>,
+        error: <b>An error occured sending you link, please try again.</b>,
+      });
+      
+  }
+
+    const verifyToken = async () => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASEURL}/auth/user/verify2fa`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token:tokenNew, secret, email:emailNew }),
+    });
+
+    const data = await res.json();
+    if (data.verified) {
+      setSuccess(true);
+      //console.log(response);
+      Cookies.set("c&m-userEmail", emailNew);
+      Cookies.set("c&m-isLoggedIn", true);
+      Cookies.set("c&m-token", tokennew);
+      setSuccessSignIn(true);
+      setVerificationMessage('Token verified successfully!');
+      router.push("/")
+    } else {
+      setVerificationMessage('Token verification failed.');
+    }
+  };
+
+
+
+  const verifyOTP = async () => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASEURL}/auth/user/verifyotp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token:tokenNew, secret, email:emailNew }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setSuccess(true);
+      //console.log(response);
+      Cookies.set("c&m-userEmail", emailNew);
+      Cookies.set("c&m-isLoggedIn", true);
+      Cookies.set("c&m-token", tokennew);
+      setSuccessSignIn(true);
+      setVerificationMessage('OTP verified successfully!');
+      router.push("/")
+    } else {
+      setVerificationMessage(data.data);
+    }
+  };
+
   // Form submission handler for email and password login
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+     const {
+    ciphertext,
+    iv
+} = await encryptSymmetric(data.password, String(process.env.NEXT_PUBLIC_CRYPTOKEY));
     try {
       setSuccessSignIn(false);
+      setHideLogin(false)
       const loginRequest = new Promise(async (resolve, reject) => {
         setErr(false);
         const request = await fetch(
@@ -139,19 +242,51 @@ const Signin = () => {
             },
             body: JSON.stringify({
               email: data.email,
-              password: data.password,
+              passwordNew: ciphertext,
+              iv: iv
             }),
           },
         );
         const response = await request.json();
 
         if (response.success) {
-          setSuccess(true);
-          //console.log(response);
-          Cookies.set("c&m-userEmail", data.email);
-          Cookies.set("c&m-isLoggedIn", true);
-          Cookies.set("c&m-token", response.data.token);
-          setSuccessSignIn(true);
+        
+          if(response.data.isMainAdmin){
+            setHideLogin(true);
+              setEnterToken(true);
+              setEmail(data.email);
+              setIsLOGGEDiN(true);
+              setTokenNew(response.data.token);
+                
+          }else if(response.data.isAdmin){
+            setHideLogin(true);
+             setEnterOtp(true);
+              setEmail(data.email);
+              setIsLOGGEDiN(true);
+              setTokenNew(response.data.token);
+              const request2 = await fetch(
+          `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/otp`,{
+            method:'POST',
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: data.email,
+              
+            }),
+          }) 
+          const response2 = await request2.json()
+          console.log(response2)
+          } else{
+              setSuccess(true);
+              //console.log(response);
+              Cookies.set("c&m-userEmail", data.email);
+              Cookies.set("c&m-isLoggedIn", true);
+              Cookies.set("c&m-token", response.data.token);
+              setSuccessSignIn(true);
+          
+          }
+
           resolve(response);
         } else {
           //console.log(response);
@@ -213,8 +348,10 @@ const Signin = () => {
               viewport={{ once: true }}
               className="animate_top rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15"
             >
+              <>
+              {!hideLogin && <>
               <h2 className="mb-5 text-center text-2xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
-                Login to Your Account
+                {forgetPasswd ? 'Reset Password' : 'Login to Your Account'}
               </h2>
               <div className="flex flex-col">
                 <div className="flex items-center gap-8">
@@ -260,13 +397,13 @@ const Signin = () => {
                   </button>
                 </div>
               </div>
-              <div className="mb-10 flex items-center justify-center">
+              {!forgetPasswd && <div className="mb-10 flex items-center justify-center">
                 <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
                 <p className="text-body-color dark:text-body-color-dark w-full px-5 text-center text-base">
                   Or, login with your email
                 </p>
                 <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
-              </div>
+              </div>}
 
               <form>
                 <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
@@ -281,7 +418,7 @@ const Signin = () => {
                     className="w-full border-b border-stroke !bg-white pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:!bg-black dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
                   />
 
-                  <input
+                  {!forgetPasswd &&  <input
                     type="password"
                     placeholder="Password"
                     name="password"
@@ -290,22 +427,23 @@ const Signin = () => {
                       setData({ ...data, password: e.target.value })
                     }
                     className="w-full border-b border-stroke !bg-white pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:!bg-black dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
-                  />
+                  />}
+                 
                 </div>
 
                 <div className="flex flex-wrap items-center gap-10 md:justify-between xl:gap-15">
                   <div className="flex flex-wrap gap-4 md:gap-10">
-                    <a href="#" className="hover:text-primary">
+                    <a href="#" className="hover:text-primary" onClick={()=> setForgetPasswd(true)}>
                       Forgot Password?
                     </a>
                   </div>
 
                   <button
-                    onClick={handleFormSubmit}
+                    onClick={(e)=> forgetPasswd? handleResetPassword(e) : handleFormSubmit(e)}
                     aria-label="login with email and password"
                     className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark dark:hover:bg-blackho"
                   >
-                    Log in
+                   {forgetPasswd ? 'Reset Password' : 'Log in'} 
                     <svg
                       className="fill-white"
                       width="14"
@@ -334,7 +472,56 @@ const Signin = () => {
                   </p>
                 </div>
               </form>
+              </>}
+              <>{enterToken &&  <div className="space-y-4">
+              <div>
+                 <h2 className="mb-5 text-center text-2xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
+                Enter The Token from your authenticator app
+              </h2>
+                <label htmlFor="token" className="block text-sm font-medium text-gray-700">Enter Token</label>
+                <input
+                  type="text"
+                  id="tokenNew"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={verifyToken}
+                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Verify Token
+              </button>
+              {verificationMessage && <p className="mt-4 text-center text-red-500">{verificationMessage}</p>}
+            </div>}</>
+
+            <>{enterOtp &&  <div className="space-y-4">
+              <div>
+                 <h2 className="mb-5 text-center text-2xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
+                Enter The OTP sent to your email
+              </h2>
+                <label htmlFor="token" className="block text-sm font-medium text-gray-700">Enter Token</label>
+                <input
+                  type="text"
+                  id="tokenNew"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={verifyOTP}
+                className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Verify OTP
+              </button>
+              {verificationMessage && <p className="mt-4 text-center text-red-500">{verificationMessage}</p>}
+            </div>}</>
+              </>
             </motion.div>
+            
+          
           </div>
         </section>
       </div>

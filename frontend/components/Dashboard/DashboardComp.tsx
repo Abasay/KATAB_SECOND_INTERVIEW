@@ -19,11 +19,18 @@ import { useEffect, useState } from "react";
 import TransactionHistory from "./DashboardPages/TransactionHistory/TransactionHistory";
 import RewardsAndCashbackHistory from "./DashboardPages/Rewards&Cashbacks/Rewards&Cashbacks";
 import ProfilePage from "./DashboardPages/Profile/ProfilePage";
+import Admin from "./Admins/AdminDashboard";
+import Setup2FA from "./Settings";
+import FinanceManager from "./Admins/FinanceDashboard";
+import GeneralSecretary from "./Admins/SecretaryDashboard";
+import Moderator from "./Admins/ModeratorDashboard";
 
 const DashboardComp = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminType, setAdminType] = useState<String>('')
 
   const userEmail = Cookies.get("c&m-userEmail");
   const token = Cookies.get("c&m-token");
@@ -39,6 +46,32 @@ const DashboardComp = () => {
 
   useEffect(() => {
     setActiveSideBar(window.location.hash);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/${userEmail}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (request.status === 401) {
+        Cookies.remove("c&m-token");
+        Cookies.remove("c&m-userEmail");
+        Cookies.remove("c&m-isLoggedIn");
+      }
+      const response = await request.json();
+      //console.log(response.data);
+      if (response.success) {
+        console.log(response.data.isMainAdmin);
+        setIsAdmin(response.data.isMainAdmin);
+        setAdminType(response.data.adminType)
+      }
+    })();
   }, []);
 
   return (
@@ -112,6 +145,71 @@ const DashboardComp = () => {
                 )}
               >
                 Cashbacks & Miles Points
+              </Link>
+              {isAdmin &&  <Link
+                onClick={() => handleLinkClick("#mainadmin")}
+                href={"#mainadmin"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-md  px-3 py-2 text-gray-900  transition-all hover:bg-gray-400  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#mainadmin",
+                  },
+                )}
+              >
+                Main Admin Dashboard
+              </Link>}
+               {(adminType === 'finance' || isAdmin) && <Link
+                onClick={() => handleLinkClick("#finance")}
+                href={"#finance"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#finance",
+                  },
+                )}
+              >
+                Finance Manager Dashboard
+              </Link>}
+              {(adminType === 'secretary' || isAdmin) && <Link
+                onClick={() => handleLinkClick("#secretary")}
+                href={"#secretary"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#secretary",
+                  },
+                )}
+              >
+                General Secretary Dashboard
+              </Link>}
+              {(adminType === 'moderator' || isAdmin) && <Link
+                onClick={() => handleLinkClick("#moderator")}
+                href={"#moderator"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#moderator",
+                  },
+                )}
+              >
+                Moderator Dashboard
+              </Link>}
+              <Link
+                onClick={() => handleLinkClick("#settings")}
+                href={"#settings"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#settings",
+                  },
+                )}
+              >
+                Settings
               </Link>
             </nav>
           </div>
@@ -231,6 +329,71 @@ const DashboardComp = () => {
               >
                 Cashbacks & Miles Points
               </Link>
+              {isAdmin && <Link
+                onClick={() => handleLinkClick("#mainadmin")}
+                href={"#mainadmin"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-md  px-3 py-2 text-gray-900  transition-all hover:bg-gray-400  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#mainadmin",
+                  },
+                )}
+              >
+                Main Admin Dashboard
+              </Link>}
+              {(adminType === 'finance' || isAdmin) && <Link
+                onClick={() => handleLinkClick("#finance")}
+                href={"#finance"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#finance",
+                  },
+                )}
+              >
+                Finance Manager Dashboard
+              </Link>}
+              {(adminType === 'secretary' || isAdmin) && <Link
+                onClick={() => handleLinkClick("#secretary")}
+                href={"#secretary"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#secretary",
+                  },
+                )}
+              >
+                General Secretary Dashboard
+              </Link>}
+              {(adminType === 'moderator' || isAdmin) && <Link
+                onClick={() => handleLinkClick("#moderator")}
+                href={"#moderator"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#moderator",
+                  },
+                )}
+              >
+                Moderator Dashboard
+              </Link>}
+               <Link
+                onClick={() => handleLinkClick("#settings")}
+                href={"#settings"}
+                className={clsx(
+                  "flex items-center gap-3 rounded-lg  px-3 py-2 text-gray-900  transition-all hover:text-gray-900  dark:text-gray-50 dark:hover:text-gray-50",
+                  {
+                    "bg-gray-300 hover:bg-gray-200 dark:bg-gray-800":
+                      activeSideBar === "#settings",
+                  },
+                )}
+              >
+                Settings
+              </Link>
             </nav>
           </div>
         </div>
@@ -246,6 +409,11 @@ const DashboardComp = () => {
         {activeSideBar === "#rewards&cashbacks" && (
           <RewardsAndCashbackHistory />
         )}
+        {activeSideBar === "#mainadmin" && <Admin/>}
+        {activeSideBar === "#settings" && <Setup2FA/>}
+        {activeSideBar === "#finance" && <FinanceManager/>}
+        {activeSideBar === "#secretary" && <GeneralSecretary/>}
+        {activeSideBar === "#moderator" && <Moderator/>}
       </div>
     </div>
   );

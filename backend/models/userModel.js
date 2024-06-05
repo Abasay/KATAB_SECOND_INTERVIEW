@@ -13,8 +13,15 @@ const userSchema = new mongoose.Schema(
 
     signInMethod: { type: String, default: 'SIGNUP' },
     isAdmin: { type: Boolean, default: false },
+    refereshToken:{type:String},
+    adminType:{type:String,default:'Nil'},
+    isMainAdmin:{type:Boolean,default:false},
+    secret2FA:{type:String, default:'Nil'},
+    otp:{type:String, default:'Nil'},
+    otpExpire:{type:Date},
+    role: {type:String, default:'user'}
   },
-  { toJSON: { virtuals: true } }
+  { toJSON: { virtuals: true }}, {timestamps: true} 
 );
 
 userSchema.options.toJSON = {

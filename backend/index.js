@@ -3,6 +3,7 @@ const app = express();
 const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const redirect = require('express-redirect');
 app.use(bodyParser.json({ limit: '500mb' }));
 app.use(
   bodyParser.urlencoded({
@@ -30,6 +31,14 @@ app.use(cors());
 
 app.use('/api/v1/auth', userRouter);
 app.use('/api/v1/transactions', transactionRouter);
+
+// app.use((req, res, next) => {
+//     if (req.header('x-forwarded-proto') !== 'https') {
+//         res.redirect(`https://${req.header('host')}${req.url}`);
+//     } else {
+//         next();
+//     }
+// });
 
 app.get('/', async (req, res) => {
   //console.log(req.body);
