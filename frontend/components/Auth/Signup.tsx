@@ -39,10 +39,9 @@ const webCamRef = useRef<Webcam>(null)
 
 const capture = useCallback(
   ()=>{
-    const imagesrc = webCamRef?.current?.getScreenshot() 
+    const imagesrc = webCamRef?.current?.getScreenshot() ?? null;
     setImageSrc(imagesrc);
-    console.log(imagesrc)
-  
+    console.log(imagesrc);
 }, [webCamRef]
 )
 
