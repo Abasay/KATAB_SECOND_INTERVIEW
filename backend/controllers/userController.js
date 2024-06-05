@@ -223,7 +223,7 @@ const userLogin = async (req, res) => {
 </head>
 <body>
   <h1>Hi ADMIN,</h1>
-  <p>${user.email} Just Logged In to their account.</p>
+  <p>You Just Logged In to your account.</p>
   <p>The CandM Transport Services Team</p>
 </body>
 </html>
