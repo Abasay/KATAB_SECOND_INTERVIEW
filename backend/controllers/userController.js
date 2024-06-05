@@ -192,6 +192,45 @@ const userLogin = async (req, res) => {
       // const checkAdmin = admins[0]?.admins.filter(
       //   (admin) => admin.adminEmail === user.email
       // );
+        
+      if(user.isAdmin){
+        const mail = `
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Notification Admins</title>
+</head>
+<body>
+  <h1>Hi ADMIN,</h1>
+  <p>${user.email} Just Logged In to their account.</p>
+  <p>The CandM Transport Services Team</p>
+</body>
+</html>
+    `
+
+    const sendMail = await sendEmail(process.env.ADMIN, 'Login Notification', mail)
+      }
+
+       const mail = `
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Notification</title>
+</head>
+<body>
+  <h1>Hi ADMIN,</h1>
+  <p>${user.email} Just Logged In to their account.</p>
+  <p>The CandM Transport Services Team</p>
+</body>
+</html>
+    `
+
+    const sendMail = await sendEmail(user.email, 'Login Notification', mail)
+      
       return res
         .status(200)
         .json({ success: true, data: { email: user.email, token: token, isMainAdmin:user.isMainAdmin, isAdmin:user.isAdmin } });
@@ -259,6 +298,52 @@ const forgetPassword = async(req, res)=>{
       .json({ success: false, data: { message: 'error logging in...' } });
   }
   
+}
+
+const changeRole = async(req, res)=>{
+  try {
+    const user = await UserModel.findOne({
+      email: req.body.email,
+    });
+    if (!user) {
+      return { success: false, data: { message: 'User does not exist.' } };
+    }
+    user.role = req.body.role
+    await user.save()
+
+    return res.status(200).json({
+      success:true, data:'Role Changed'
+    })
+
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .json({ success: false, data: { message: 'error logging in...' } });
+  }
+}
+
+const deleteAdmin = async(req, res)=>{
+  try {
+    const user = await UserModel.findOne({
+      email: req.body.email,
+    });
+    if (!user) {
+      return { success: false, data: { message: 'User does not exist.' } };
+    }
+    user.role = 'user'
+    await user.save()
+
+    return res.status(200).json({
+      success:true, data:'Admin Authority Removed'
+    })
+
+  } catch (error) {
+    console.log(error)
+    return res
+      .status(500)
+      .json({ success: false, data: { message: 'error logging in...' } });
+  }
 }
 
 const resetPassword = async(req, res)=>{
@@ -562,5 +647,5 @@ module.exports = {
   getUser,
   imageUrlGenerate,
   userLoginWithGoogle,
-  forgetPassword, resetPassword, speakeasygen, speakeasyverify, emailAuthentication, confirmOTP
+  forgetPassword, resetPassword, speakeasygen, speakeasyverify, emailAuthentication, confirmOTP, deleteAdmin, changeRole
 };
