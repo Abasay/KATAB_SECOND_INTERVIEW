@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { encryptSymmetric } from '@/middlewares/encrypt';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { URLS } from '@/lib/urls';
+import { dummyData } from './dummyData';
 
 
 const salt = genSaltSync(10)
@@ -90,6 +91,20 @@ export default function Admin() {
     }
   };
 
+ 
+
+  const [data, setData] = useState(dummyData);
+  const addUser = () => {
+    let newPerson: {email: string, password: string, role: string} = {
+      email,
+      password,
+      role
+    }
+    // setData((prevData: string[]) => {
+    //   return [...prevData, newPerson]
+    // });
+  };
+
   const router = useRouter();
 
    useEffect(() => {
@@ -121,8 +136,8 @@ export default function Admin() {
   return (
     <>
     {isMainAdmin && <>
-    <div className="m bg-gray-100 flex items-center  w-[400px] justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full">
+    <div style={{flexDirection: 'column', marginLeft: '45px'}} className="m flex  w-[auto] justify-center">
+      <div style={{width: '400px'}} className="bg-white w-[400px] shadow-lg p-8 rounded-lg w-full">
         <h1 className="text-2xl font-bold mb-4 text-center">Main Admin Page</h1>
       <form onSubmit={(e)=>handleSubmit(e)} className="space-y-4">
           <div>
@@ -163,6 +178,7 @@ export default function Admin() {
             </select>
           </div>
           <button
+            style={{width: '150px', alignItems: 'center'}}
             type="submit"
             className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
@@ -171,6 +187,31 @@ export default function Admin() {
         </form>
         {message && <p className="mt-4 text-center text-red-500">{message}</p>}
       </div>
+      {true && <div style={{marginTop: '30px', width: '65vw'}}>
+        <table style={{width: 'inherit'}} className='shadow-sm'>
+          <thead className='bg-grey'>
+            <tr style={{display: 'flex', justifyContent: 'space-between', padding: '10px', flexWrap: 'wrap'}}>
+              <td>Email</td>
+              <td>Role</td>
+              <td>Password</td>
+              <td>Action</td>
+            </tr>
+          </thead>
+          <tbody style={{display: 'grid'}}>
+        {data.map(item => {
+          const { age, role, email, password} = item;
+          return (
+            <tr style={{display: 'flex', justifyContent: 'space-between', padding: '10px', flexWrap: 'wrap'}} key={age}>
+              <td>{role}</td>
+              <td>{email}</td>
+              <td>{password}</td>
+              <button className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Change</button>
+            </tr>
+          )
+        })}
+        </tbody>
+        </table>
+        </div>}
     </div>
     </>}
     </>
