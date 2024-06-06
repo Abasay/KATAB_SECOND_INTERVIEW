@@ -1,10 +1,19 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+// import { useState } from "react";
 import { motion } from "framer-motion";
 
 const Hero = () => {
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
+
+  let image = "/images/hero/bus_7.jpg";
+  let div_styling = {
+    height: '130vh',
+    background: `url('${image}')`,
+    backgroundSize: '100%',
+    backgroundPosition: 'center',
+    // filter: `brightness('10%')`,
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,8 +22,8 @@ const Hero = () => {
   return (
     <>
       <section className="overflow-hidden pt-20 ">
-        <div className="relative mx-auto w-full ">
-          <img src="/images/hero/bus_7.jpg" alt="" className="" />
+        <div style={div_styling} className="relative mx-auto w-full ">
+          {/* <img src="/images/hero/bus_7.jpg" alt="" className="" /> */}
           <motion.a
             variants={{
               hidden: {
@@ -33,7 +42,7 @@ const Hero = () => {
             viewport={{ once: true }}
             className="animate_top  absolute top-[50%] mx-auto block h-10  w-full text-2xl "
           >
-            <p className="mx-auto max-w-[300px] border-red-400 text-center font-bold  text-white">
+            <p style={{textAlign: 'center'}} className="max-w-[100%] border-red-400 text-center font-bold  text-white">
               Maximize Rewards: Cashback & Miles Transport Services
             </p>
           </motion.a>

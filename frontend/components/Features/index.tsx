@@ -6,14 +6,14 @@ const Features = () => {
   return (
     <>
       {/* <!-- ===== About Start ===== --> */}
-      <section className=" mt-10 overflow-hidden pb-20 lg:pb-25 xl:pb-30">
+      <section style={{margin: '0px 80px'}} className=" mt-10 overflow-hidden pb-20 lg:pb-25 xl:pb-30">
         <div>
-          <h1 className="my-4 text-center text-2xl font-semibold tracking-wider text-black ">
+          <h1 className="my-4 text-center text-2xl font-semibold tracking-wider">
             FEATURES
           </h1>
         </div>
         <div className="mx-auto max-w-c-1235 px-4 md:px-8 xl:px-0">
-          <div className="mx-auto mt-10 flex w-full flex-row items-center justify-evenly max-md:flex-col">
+          <div className="mx-auto flex w-full flex-row items-center justify-evenly max-md:flex-col">
             <motion.div
               variants={{
                 hidden: {
