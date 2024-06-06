@@ -433,7 +433,7 @@ function validatePassword(password: any) {
                       </defs>
                     </svg>
                   </span>
-                  Signup with Google
+                  Sign up with Google
                 </button>
               </div>
 

@@ -6,7 +6,7 @@ const Features = () => {
   return (
     <>
       {/* <!-- ===== About Start ===== --> */}
-      <section style={{margin: '0px 80px'}} className=" mt-10 overflow-hidden pb-20 lg:pb-25 xl:pb-30">
+      <section className=" mt-10 overflow-hidden pb-20 lg:pb-25 xl:pb-30">
         <div>
           <h1 className="my-4 text-center text-2xl font-semibold tracking-wider">
             FEATURES

@@ -6,15 +6,6 @@ import { motion } from "framer-motion";
 const Hero = () => {
   // const [email, setEmail] = useState("");
 
-  let image = "/images/hero/bus_7.jpg";
-  let div_styling = {
-    height: '130vh',
-    background: `url('${image}')`,
-    backgroundSize: '100%',
-    backgroundPosition: 'center',
-    // filter: `brightness('10%')`,
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault();
   };
@@ -22,8 +13,8 @@ const Hero = () => {
   return (
     <>
       <section className="overflow-hidden pt-20 ">
-        <div style={div_styling} className="relative mx-auto w-full ">
-          {/* <img src="/images/hero/bus_7.jpg" alt="" className="" /> */}
+        <div className="relative mx-auto w-full ">
+          <img src="/images/hero/bus_7.jpg" alt="" className="" />
           <motion.a
             variants={{
               hidden: {

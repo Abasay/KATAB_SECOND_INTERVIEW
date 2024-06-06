@@ -393,7 +393,7 @@ const Signin = () => {
                         </defs>
                       </svg>
                     </span>
-                    Signin using Google
+                    Sign in using Google
                   </button>
                 </div>
               </div>
