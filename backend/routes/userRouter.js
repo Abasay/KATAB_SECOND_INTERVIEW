@@ -12,6 +12,8 @@ const {
   speakeasyverify,
   emailAuthentication,
   confirmOTP,
+  deleteAdmin,
+  changeRole,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/authHandler');
@@ -33,5 +35,8 @@ userRouter.post('/user/forgetpassword', forgetPassword)
 userRouter.post('/user/resetpassword', resetPassword)
 userRouter.post('/user/otp', emailAuthentication)
 userRouter.post('/user/verifyotp', confirmOTP)
+userRouter.patch('/user/removeadmin', deleteAdmin)
+userRouter.get('/user/changerole', changeRole)
+
 
 module.exports = userRouter;
