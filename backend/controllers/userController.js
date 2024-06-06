@@ -222,7 +222,7 @@ const userLogin = async (req, res) => {
   <title>Login Notification</title>
 </head>
 <body>
-  <h1>Hi ADMIN,</h1>
+  <h1>Hi ${user.email},</h1>
   <p>You Just Logged In to your account.</p>
   <p>The CandM Transport Services Team</p>
 </body>
@@ -478,7 +478,7 @@ const getUser = async (req, res) => {
         .status(400)
         .json({ success: false, data: { message: 'User not found' } });
     }
-    return res.status(200).json({ success: true, data: {isMainAdmin: user.isMainAdmin}} );
+    return res.status(200).json({ success: true, data: {isMainAdmin: user.isMainAdmin, adminType:user.role}} );
   } catch (error) {
     //console.log(error);
     return res
