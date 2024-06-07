@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 const Hero = () => {
   // const [email, setEmail] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  // };
 
   return (
     <>

@@ -393,7 +393,7 @@ function validatePassword(password: any) {
               <h2 className="mb-15 text-center text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
                 Create an Account
               </h2>
-              <div className="flex items-center gap-8">
+              <div className="flex items-center mb-10 gap-8">
                 {/* Google Signup Button */}
                 <button
                   onClick={() => handleGoogleLogin()}
@@ -439,11 +439,11 @@ function validatePassword(password: any) {
 
               {/* Divider */}
               <div className="mb-10 flex items-center justify-center">
-                <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
+                <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[250px] bg-stroke dark:bg-strokedark sm:block"></span>
                 <p className="text-body-color dark:text-body-color-dark w-full px-5 text-center text-base">
-                  Or, register with your email
+                  or
                 </p>
-                <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
+                <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[250px] bg-stroke dark:bg-strokedark sm:block"></span>
               </div>
 
               {/* Signup Form Fields */}
