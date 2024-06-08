@@ -57,9 +57,9 @@ const Contact = () => {
               viewport={{ once: true }}
               className="animate_top w-full rounded-lg bg-white p-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black md:w-3/5 lg:w-3/4 xl:p-15"
             >
-              <h2 className="mb-15 text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
+              <h3 className="mb-15 text-3xl font-semibold text-black dark:text-white">
                 Send a message
-              </h2>
+              </h3>
 
               <form
                 action="https://formbold.com/s/unique_form_id"
@@ -95,9 +95,10 @@ const Contact = () => {
 
                 <div className="mb-11.5 flex">
                   <textarea
-                    placeholder="Message"
+                    style={{resize: 'none'}}
+                    placeholder="Message..."
                     rows={4}
-                    className="w-full border-b border-stroke bg-transparent focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white"
+                    className="w-full p-3 border bg-light border-stroke bg-transparent focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white"
                   ></textarea>
                 </div>
 
@@ -136,7 +137,7 @@ const Contact = () => {
 
                   <button
                     aria-label="send message"
-                    className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark"
+                    className="inline-flex mt-3 items-center gap-2.5 rounded-0 bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark"
                   >
                     Send Message
                     <svg
@@ -175,20 +176,20 @@ const Contact = () => {
               viewport={{ once: true }}
               className="animate_top w-full md:w-2/5 md:p-7.5 lg:w-[26%] xl:pt-15"
             >
-              <h2 className="mb-12.5 text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
+              <h3 className="mb-12.5 text-3xl font-semibold text-black dark:text-white">
                 Find us
-              </h2>
+              </h3>
 
               <div className="5 mb-7">
-                <h3 className="mb-4 text-metatitle3 font-medium text-black dark:text-white">
+                <h4 className="mb-4 text-metatitle3 font-medium text-black dark:text-white">
                   Our Location
-                </h3>
+                </h4>
                 <p>RD A, IWOROKO, EKSU, Ado-Ekiti.</p>
               </div>
               <div className="5 mb-7">
-                <h3 className="mb-4 text-metatitle3 font-medium text-black dark:text-white">
+                <h4 className="mb-4 text-metatitle3 font-medium text-black dark:text-white">
                   Email Address
-                </h3>
+                </h4>
                 <p>
                   <a href="#">abdulsalamasheem@gmail.com</a>
                 </p>

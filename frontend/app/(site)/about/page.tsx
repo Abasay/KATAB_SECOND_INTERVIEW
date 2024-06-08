@@ -17,10 +17,10 @@ const AboutPage = () => {
       <main className="mx-auto max-w-6xl px-4 py-12">
         <section className="mb-12">
           <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-            <h2 className="mb-6 text-4xl font-bold text-gray-800 dark:text-white md:text-5xl lg:text-6xl">
+            <h4 className="mb-6 text-4xl font-bold text-gray-800 dark:text-white">
               About Us
-            </h2>
-            <p className="text-base text-gray-700 dark:text-gray-300 md:text-lg lg:text-xl">
+            </h4>
+            <p className="text-base text-gray-700 dark:text-gray-300">
               C&M Transport Services is dedicated to providing convenient and
               efficient transportation services for all our customers. Whether
               you're commuting to work, exploring a new city, or planning a trip
@@ -31,10 +31,10 @@ const AboutPage = () => {
 
         <section className="mb-12">
           <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-            <h2 className="mb-6 text-4xl font-bold text-gray-800 dark:text-white md:text-5xl lg:text-6xl">
+            <h2 className="mb-6 text-4xl font-bold text-gray-800 dark:text-white">
               Our Mission
             </h2>
-            <p className="text-base text-gray-700 dark:text-gray-300 md:text-lg lg:text-xl">
+            <p className="text-base text-gray-700 dark:text-gray-300">
               Our mission is to revolutionize the way people travel by offering
               a seamless experience from booking to arrival. We strive to make
               transportation accessible, affordable, and eco-friendly for
@@ -45,10 +45,10 @@ const AboutPage = () => {
 
         <section>
           <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-            <h2 className="mb-6 text-4xl font-bold text-gray-800 dark:text-white md:text-5xl lg:text-6xl">
+            <h2 className="mb-6 text-4xl font-bold text-gray-800 dark:text-white">
               Contact Us
             </h2>
-            <p className="text-base text-gray-700 dark:text-gray-300 md:text-lg lg:text-xl">
+            <p className="text-base text-gray-700 dark:text-gray-300">
               Have questions or feedback? We'd love to hear from you. Contact
               our support team at{" "}
               <a href="mailto:info@yourtransport.com" className="text-blue-500">
