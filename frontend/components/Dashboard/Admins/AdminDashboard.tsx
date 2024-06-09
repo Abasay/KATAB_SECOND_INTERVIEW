@@ -83,41 +83,33 @@ export default function Admin() {
   };
 
   const [data, setData] = useState(dummyData);
-  const [roles, setRoles] = useState<string[]>([]);
   const addUser = () => {
-    let newPerson: { email: string; password: string; role: string } = {
+    let newPerson: {
+      id: number;
+      email: string;
+      password: string;
+      role: string;
+    } = {
+      id: Number(new Date().getMilliseconds()),
       email,
       password,
       role,
     };
-    // setData((prevData: string[]) => {
-    //   return [...prevData, newPerson]
-    // });
+    setData((prevData: any) => {
+      return [...prevData, newPerson];
+    });
+  };
+  const removeUser = (id: number) => {
+    let filter = data.filter((item) => item.id !== id);
+    setData(filter);
   };
 
-  const getRoles = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/roles`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: Cookies.get("c&m-userEmail"),
-          }),
-        },
-      );
+  // const [roleAssigned, changeRoleAssigned] = useState<string>('');
 
-      const data = await res.json();
-      if (data.success) {
-        setRoles(data.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const changeRole = (e: any, id: number) => {
+  //   const {name, value} = e.target;
+  //   setRole(value);
+  // };
 
   const router = useRouter();
 
@@ -145,7 +137,6 @@ export default function Admin() {
         router.push("/dashboard");
       }
     })();
-    getRoles();
   }, []);
 
   return (
@@ -209,16 +200,17 @@ export default function Admin() {
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                   >
-                    <option value="user">User</option>
-                    <option value="moderator">Moderator</option>
-                    <option value="finance">Finance Manager</option>
-                    <option value="manager">General Manager</option>
-                    <option value="secretary">General Secretary</option>
+                    <option value="User">User</option>
+                    <option value="Moderator">Moderator</option>
+                    <option value="Finance Manager">Finance Manager</option>
+                    <option value="General Manager">General Manager</option>
+                    <option value="General Secretary">General Secretary</option>
                   </select>
                 </div>
                 <button
                   style={{ width: "150px", alignItems: "center" }}
                   type="submit"
+                  onClick={addUser}
                   className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Create User
@@ -229,42 +221,57 @@ export default function Admin() {
               )}
             </div>
             {true && (
-              <div style={{ marginTop: "30px", width: "65vw" }}>
+              <div style={{ marginTop: "30px", width: "75vw" }}>
                 <table style={{ width: "inherit" }} className="shadow-sm">
-                  <thead className="bg-grey">
+                  <thead className="bg-gray-50">
                     <tr
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
+                        display: "grid",
+                        gridTemplateColumns: "repeat(5, 1fr)",
                         padding: "10px",
-                        flexWrap: "wrap",
                       }}
                     >
-                      <td>Email</td>
                       <td>Role</td>
+                      <td>Email</td>
                       <td>Password</td>
                       <td>Action</td>
+                      <td>Change Role</td>
                     </tr>
                   </thead>
                   <tbody style={{ display: "grid" }}>
                     {data.map((item) => {
-                      const { age, role, email, password } = item;
+                      const { id, age, role, email, password } = item;
                       return (
                         <tr
                           style={{
-                            display: "flex",
-                            justifyContent: "space-between",
+                            display: "grid",
+                            gridTemplateColumns: "repeat(5, 1fr)",
                             padding: "10px",
-                            flexWrap: "wrap",
                           }}
-                          key={age}
+                          key={id}
                         >
                           <td>{role}</td>
                           <td>{email}</td>
                           <td>{password}</td>
-                          <button className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            Change
+                          <button
+                            onClick={() => {
+                              removeUser(id);
+                            }}
+                            className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                          >
+                            Remove
                           </button>
+                          {/* <select
+               onChange={(e)=>changeRole(e, id)}
+               value={role} className='className="py-2 ml-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"'>
+                <option>{role}</option>
+                <option value="user">User</option>
+                <option value="moderator">Moderator</option>
+                <option value="finance">Finance Manager</option>
+                <option value="manager">General Manager</option>
+                <option value="secretary">General Secretary</option>
+              </select> */}
+                          {/* <button onClick={()=>{}} className="py-2 ml-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Change Role</button> */}
                         </tr>
                       );
                     })}
