@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/components/SignOut/signOut";
+import RolesPage from "../../Admins/RolesCreate";
 
 // Define a functional component named ProfilePage
 const ProfilePage = () => {
@@ -54,7 +55,7 @@ const ProfilePage = () => {
   // The JSX markup for the profile page UI
   return (
     <>
-      <div className="w-[700px pl-20">
+      <div className="w-[700px] pl-20">
         <div className="mx-auto w-full py-8">
           <div className="rounded-lg bg-white ">
             <h2 className="flex flex-row items-center gap-4 p-7 text-3xl font-bold tracking-wider text-black">
@@ -150,6 +151,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+      <RolesPage />
     </>
   );
 };

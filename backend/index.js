@@ -26,8 +26,10 @@ const PORT = process.env.SERVER_PORT || 8080;
 const userRouter = require('./routes/userRouter');
 const transactionRouter = require('./routes/transactionRoute');
 const generatePDF = require('./middlewares/transportIdPDFFile');
+const vpnMiddleware = require('./middlewares/vpnmiddleware');
 
 app.use(cors());
+app.use(vpnMiddleware)
 
 app.use('/api/v1/auth', userRouter);
 app.use('/api/v1/transactions', transactionRouter);

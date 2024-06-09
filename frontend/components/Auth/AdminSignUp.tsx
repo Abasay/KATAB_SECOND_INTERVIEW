@@ -17,15 +17,13 @@ import WebCamComPonent from "../Others/WebCamComp";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
 import ReCAPTCHA from "react-google-recaptcha";
+import { Truculenta } from "next/font/google";
 import PassPhrase from "./PassPhrase";
 const salt = genSaltSync(10);
 
 const minimumLength = 12;
 // Signup component definition
-const Signup = () => {
-  // some plaintext you want to encrypt
-  const plaintext = "The quick brown fox jumps over the lazy dog";
-
+const AdminSignUp = () => {
   // create or bring your own base64-encoded encryption key
 
   //WebCam
@@ -77,7 +75,6 @@ const Signup = () => {
     profileImg: "",
     password: "",
     confirmPassword: "",
-    passPhrase: "",
   });
 
   const email = Cookies.get("c&m-userEmail");
@@ -88,6 +85,7 @@ const Signup = () => {
   const [success, setSuccess] = useState(false);
   const [msg, setMsg] = useState("");
   const [successSignUp, setSuccessSignUp] = useState(false);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [showSetPassPhrase, setPassPhrase] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState("");
 
@@ -187,8 +185,8 @@ const Signup = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setShowCam(false);
+    setSignUpSuccess(false);
     setPassPhrase(false);
-
     if (data.password !== data.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -198,17 +196,13 @@ const Signup = () => {
       return;
     }
     if (
+      !data.firstName ||
+      !data.lastName ||
       !data.email ||
       !data.password ||
-      !data.confirmPassword ||
-      !data.passPhrase
+      !data.confirmPassword
     ) {
       toast.error("All fields are required");
-      return;
-    }
-
-    if (data.passPhrase.length < 15) {
-      toast.error("Pass phrase must be at least 15 characters long");
       return;
     }
 
@@ -229,15 +223,9 @@ const Signup = () => {
         hashSync(data.password, salt),
         String(process.env.NEXT_PUBLIC_CRYPTOKEY),
       );
-
-      const { ciphertext: passPhraseCiphertext, iv: passPhraseIv } =
-        await encryptSymmetric(
-          data.passPhrase,
-          String(process.env.NEXT_PUBLIC_CRYPTOKEY),
-        );
       const uploadUserDetails = new Promise(async (resolve, reject) => {
         const uploadRequest = await fetch(
-          `${process.env.NEXT_PUBLIC_BASEURL}${URLS.userSignUp}`,
+          `${process.env.NEXT_PUBLIC_BASEURL}/user/admin/signup`,
           {
             method: "POST",
             headers: {
@@ -251,10 +239,7 @@ const Signup = () => {
                     profileImg:
                       "https://th.bing.com/th/id/R.3d968cd93cde586df04d1048dfb92604?rik=7MWjxZQVy1cjsg&pid=ImgRaw&r=0",
                     passwordNew: ciphertext,
-                    password: ciphertext,
                     iv: iv,
-                    passPhrase: passPhraseCiphertext,
-                    passPhraseIv: passPhraseIv,
                   },
             }),
           },
@@ -265,9 +250,9 @@ const Signup = () => {
         //console.log(response);
         if (response.success) {
           // setSuccess(true);
-          setPassPhrase(true);
-
+          setSuccessSignUp(true);
           setIsSigningIn(false);
+          setPassPhrase(true);
           setData({
             firstName: "",
             lastName: "",
@@ -275,7 +260,6 @@ const Signup = () => {
             profileImg: "",
             password: "",
             confirmPassword: "",
-            passPhrase: "",
           });
           setImg("/images/about/default.gif");
 
@@ -414,11 +398,84 @@ const Signup = () => {
                 <h2 className="mb-15 text-center text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
                   Create an Account
                 </h2>
+                {/* <div className="flex items-center gap-8">
+                  <button
+                    onClick={() => handleGoogleLogin()}
+                    aria-label="signup with google"
+                    className="text-body-color dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none"
+                  >
+                    <span className="mr-3">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <g clipPath="url(#clip0_95:967)">
+                          <path
+                            d="M20.0001 10.2216C20.0122 9.53416 19.9397 8.84776 19.7844 8.17725H10.2042V11.8883H15.8277C15.7211 12.539 15.4814 13.1618 15.1229 13.7194C14.7644 14.2769 14.2946 14.7577 13.7416 15.1327L13.722 15.257L16.7512 17.5567L16.961 17.5772C18.8883 15.8328 19.9997 13.266 19.9997 10.2216"
+                            fill="#4285F4"
+                          />
+                          <path
+                            d="M10.2042 20.0001C12.9592 20.0001 15.2721 19.1111 16.9616 17.5778L13.7416 15.1332C12.88 15.7223 11.7235 16.1334 10.2042 16.1334C8.91385 16.126 7.65863 15.7206 6.61663 14.9747C5.57464 14.2287 4.79879 13.1802 4.39915 11.9778L4.27957 11.9878L1.12973 14.3766L1.08856 14.4888C1.93689 16.1457 3.23879 17.5387 4.84869 18.512C6.45859 19.4852 8.31301 20.0005 10.2046 20.0001"
+                            fill="#34A853"
+                          />
+                          <path
+                            d="M4.39911 11.9777C4.17592 11.3411 4.06075 10.673 4.05819 9.99996C4.0623 9.32799 4.17322 8.66075 4.38696 8.02225L4.38127 7.88968L1.19282 5.4624L1.08852 5.51101C0.372885 6.90343 0.00012207 8.4408 0.00012207 9.99987C0.00012207 11.5589 0.372885 13.0963 1.08852 14.4887L4.39911 11.9777Z"
+                            fill="#FBBC05"
+                          />
+                          <path
+                            d="M10.2042 3.86663C11.6663 3.84438 13.0804 4.37803 14.1498 5.35558L17.0296 2.59996C15.1826 0.901848 12.7366 -0.0298855 10.2042 -3.6784e-05C8.3126 -0.000477834 6.45819 0.514732 4.8483 1.48798C3.2384 2.46124 1.93649 3.85416 1.08813 5.51101L4.38775 8.02225C4.79132 6.82005 5.56974 5.77231 6.61327 5.02675C7.6568 4.28118 8.91279 3.87541 10.2042 3.86663Z"
+                            fill="#EB4335"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_95:967">
+                            <rect width="20" height="20" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </span>
+                    Sign up with Google
+                  </button>
+                </div> */}
 
                 {/* Divider */}
+                {/* <div className="mb-10 flex items-center justify-center">
+                  <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
+                  <p className="text-body-color dark:text-body-color-dark w-full px-5 text-center text-base">
+                    Or, register with your email
+                  </p>
+                  <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
+                </div> */}
 
                 {/* Signup Form Fields */}
                 <form className="pb-10">
+                  <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
+                    <input
+                      name="firstName"
+                      type="text"
+                      placeholder="First name"
+                      value={data.firstName}
+                      onChange={(e) =>
+                        setData({ ...data, [e.target.name]: e.target.value })
+                      }
+                      className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
+                    />
+
+                    <input
+                      name="lastName"
+                      type="text"
+                      placeholder="Last name"
+                      value={data.lastName}
+                      onChange={(e) =>
+                        setData({ ...data, [e.target.name]: e.target.value })
+                      }
+                      className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
+                    />
+                  </div>
+
                   <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
                     <input
                       name="email"
@@ -456,21 +513,6 @@ const Signup = () => {
                       className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
                     />
                   </div>
-                  <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
-                    <p>
-                      This passphrase will be asked whenever you want to login.
-                    </p>
-                    <input
-                      name="passPhrase"
-                      type="text"
-                      placeholder="Please enter your pass phrase"
-                      value={data.passPhrase}
-                      onChange={(e) =>
-                        setData({ ...data, [e.target.name]: e.target.value })
-                      }
-                      className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
-                    />
-                  </div>
 
                   {/* Signup Button */}
                   <button
@@ -482,63 +524,19 @@ const Signup = () => {
                   >
                     {isSigningIn ? "Signing up..." : "Sign Up"}
                   </button>
-                  {/* <div>
-                  <ReCAPTCHA
-                sitekey={process.env.NEXT_PUBLIC_CAPTCHASITEKEY}
-                onChange={(value:any)=>{console.log(value)}}
-              />
-                </div> */}
+                  <div>
+                    <ReCAPTCHA
+                      sitekey={process.env.NEXT_PUBLIC_CAPTCHASITEKEY}
+                      onChange={(value: any) => {
+                        console.log(value);
+                      }}
+                    />
+                  </div>
                 </form>
               </motion.div>
             )}
 
-            {/* {showCam && <motion.div
-              variants={{
-                hidden: {
-                  opacity: 0,
-                  y: -20,
-                },
-
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                },
-              }}
-              initial="hidden"
-              whileInView="visible"
-              transition={{ duration: 1, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="animate_top rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15"
-            >
-              <h2 className="mb-15 text-center text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
-                Take A Selfie.
-              </h2>
-              
-              <div className="mt-12 w-[80%] mx-auto">
-                <img src="https://tse3.mm.bing.net/th/id/OIP.simDBt0MfUWGNq-55KzdMwHaHa?rs=1&pid=ImgDetMain" alt="User Image" className=" w-[300px] h-[300px] rounded-md" />
-              </div>
-              {imageSrc && <img src={imageSrc} alt="captured" />}
-      <div className=" mt-10 text-center">{isHuman ? 'Human Detected' : 'No Human Detected'}</div>
-               <button
-                  onClick={capture}
-                  className="w-full rounded-md bg-primary py-3.5 text-base font-semibold text-white transition-all duration-300 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-opacity-80"
-                >
-                  Capture Photo</button>
-
-                   
-              <div>
-                <Webcam ref={webCamRef} screenshotFormat="image/jpeg"/>                
-              </div>
-
-              
-
-              
-
-
-              
-            </motion.div>} */}
-
-            {showSetPassPhrase && (
+            {/* {showCam && (
               <motion.div
                 variants={{
                   hidden: {
@@ -555,15 +553,36 @@ const Signup = () => {
                 whileInView="visible"
                 transition={{ duration: 1, delay: 0.1 }}
                 viewport={{ once: true }}
-                className="animate_top rounded-lg bg-white px-7.5 pb-10 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15"
+                className="animate_top rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15"
               >
-                {/* Form Header */}
                 <h2 className="mb-15 text-center text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
-                  Create a Pass Key
+                  Take A Selfie.
                 </h2>
-                <PassPhrase email={signUpEmail} />
+
+                <div className="mx-auto mt-12 w-[80%]">
+                  <img
+                    src="https://tse3.mm.bing.net/th/id/OIP.simDBt0MfUWGNq-55KzdMwHaHa?rs=1&pid=ImgDetMain"
+                    alt="User Image"
+                    className=" h-[300px] w-[300px] rounded-md"
+                  />
+                </div>
+                {imageSrc && <img src={imageSrc} alt="captured" />}
+                <div className=" mt-10 text-center">
+                  {isHuman ? "Human Detected" : "No Human Detected"}
+                </div>
+                <button
+                  onClick={capture}
+                  className="w-full rounded-md bg-primary py-3.5 text-base font-semibold text-white transition-all duration-300 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-opacity-80"
+                >
+                  Capture Photo
+                </button>
+
+                <div>
+                  <Webcam ref={webCamRef} screenshotFormat="image/jpeg" />
+                </div>
               </motion.div>
-            )}
+            )} */}
+            {showSetPassPhrase && <PassPhrase email={signUpEmail} />}
           </div>
         </section>
       )}
@@ -571,4 +590,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default AdminSignUp;
