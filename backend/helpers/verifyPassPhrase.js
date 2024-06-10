@@ -56,7 +56,7 @@ async function verifyPassPhraseHandler(email, attestationResponse) {
 
   const attestationExpectations = {
     challenge: user.passphraseChallenge,
-    origin: 'http://localhost:3000',
+    origin: process.env.PASSKEY_ORIGIN,
     factor: 'either',
   };
 

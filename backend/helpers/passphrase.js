@@ -5,7 +5,7 @@ const base64url = require('base64url');
 // Initialize Fido2Lib
 const fido2 = new Fido2Lib({
   timeout: 60000,
-  rpId: 'localhost',
+  rpId: process.env.PASSKEY_RP_ID,
   rpName: process.env.APP_NAME,
   challengeSize: 32,
   authenticatorRequireResidentKey: false,
