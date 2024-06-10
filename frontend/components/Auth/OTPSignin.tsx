@@ -60,7 +60,7 @@ const OTPComponent: React.FC<OTPComponentProps> = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ phoneNumber, otp, email: userEmail }),
+          body: JSON.stringify({ phoneNumber, otp, email: email }),
         },
       );
       const data = await res.json();
