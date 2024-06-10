@@ -56,7 +56,7 @@ async function verifyPassPhraseHandler(email, attestationResponse) {
 
   const attestationExpectations = {
     challenge: user.passphraseChallenge,
-    origin: 'https://candm-services.vercel.app',
+    origin: 'http://localhost:3000',
     factor: 'either',
   };
 

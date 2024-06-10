@@ -29,6 +29,7 @@ const {
   getRolesForAdmin,
   deleteRolesForAdmin,
   sendSmsOTP,
+  getAdmins,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/authHandler');
@@ -74,6 +75,7 @@ userRouter.post('/user/get-sms-otp', sendSmsOTP);
 userRouter.post('/user/verify-sms-otp', verifySmsOtp);
 userRouter.post('/user/auths', getAuthsEnabled);
 userRouter.post('/user/disableAuth', disableAuths);
+userRouter.post('/user/get-admins', getAdmins);
 
 userRouter.delete('/user/delete-role', deleteRolesForAdmin);
 

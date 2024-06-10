@@ -5,7 +5,7 @@ const base64url = require('base64url');
 // Initialize Fido2Lib
 const fido2 = new Fido2Lib({
   timeout: 60000,
-  rpId: 'candm-services.vercel.app',
+  rpId: 'localhost',
   rpName: process.env.APP_NAME,
   challengeSize: 32,
   authenticatorRequireResidentKey: false,

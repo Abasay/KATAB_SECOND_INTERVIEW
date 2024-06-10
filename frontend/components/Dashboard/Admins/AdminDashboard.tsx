@@ -19,6 +19,7 @@ export default function Admin() {
   const [isMainAdmin, setIsMainAdmin] = useState<boolean>(false);
   const [adminType, setAdminType] = useState<string>("");
   const [roles, setRoles] = useState<string[]>([]);
+  const [changerole, setChangeRole] = useState<Boolean>(false);
 
   const userEmail = Cookies.get("c&m-userEmail");
 
@@ -85,6 +86,25 @@ export default function Admin() {
     }
   };
 
+  const getAdmins = async () => {
+    try {
+      const req = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/get-admins`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: Cookies.get("c&m-userEmail") }),
+        },
+      );
+
+      const response = await req.json();
+      if (response.success) setData(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const [data, setData] = useState(dummyData);
   const addUser = () => {
     let newPerson: {
@@ -106,6 +126,10 @@ export default function Admin() {
     let filter = data.filter((item) => item.id !== id);
     setData(filter);
   };
+
+  useEffect(() => {
+    getAdmins();
+  }, []);
 
   // const [roleAssigned, changeRoleAssigned] = useState<string>('');
 
@@ -165,6 +189,44 @@ export default function Admin() {
     getRoles();
   }, []);
 
+  const changeRole = async (e) => {
+    e.preventDefault();
+    try {
+      const req = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/update-role`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: Cookies.get("c&m-userEmail"),
+            adminEmail: email,
+            role: role,
+          }),
+        },
+      );
+
+      const response = await req.json();
+      if (response.success) {
+        setemail("");
+        setRole("user");
+        setData(response.data);
+        setChangeRole(false);
+
+        toast.success("Roles changed");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAdmins();
+  }, [data]);
+
+  const removeAdmin = async () => {};
+
   return (
     <>
       {(isMainAdmin || adminType !== "user") && (
@@ -185,7 +247,12 @@ export default function Admin() {
                 <h1 className="mb-4 text-center text-2xl font-bold">
                   Create An Admin
                 </h1>
-                <form onSubmit={(e) => handleSubmit(e)} className="space-y-4">
+                <form
+                  onSubmit={(e) =>
+                    changerole ? changeRole(e) : handleSubmit(e)
+                  }
+                  className="space-y-4"
+                >
                   <div>
                     <label
                       htmlFor="email"
@@ -196,6 +263,7 @@ export default function Admin() {
                     <input
                       type="text"
                       id="email"
+                      disabled={changerole ? true : false}
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                       value={email}
                       onChange={(e) => setemail(e.target.value)}
@@ -231,28 +299,32 @@ export default function Admin() {
                       value={role}
                       onChange={(e) => setRole(e.target.value)}
                     >
-                      {roles.length > 0 ? (
+                      {roles.length > 0 &&
                         roles.map((rol, idx) => {
                           return (
                             <option value={rol} key={idx}>
                               {rol}
                             </option>
                           );
-                        })
-                      ) : (
-                        <div>
-                          <p>No roles Available for this admin to assign</p>{" "}
-                        </div>
-                      )}
+                        })}
                     </select>
+                    {roles.length === 0 && (
+                      <div>
+                        <p className="text-center">
+                          No roles Available for this admin to assign
+                        </p>{" "}
+                      </div>
+                    )}
                   </div>
                   <button
                     style={{ width: "150px", alignItems: "center" }}
                     type="submit"
-                    onClick={addUser}
+                    onClick={(e) =>
+                      changerole ? changeRole(e) : handleSubmit(e)
+                    }
                     className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >
-                    Create User
+                    {changerole ? "Change Role" : "Create Admin"}
                   </button>
                 </form>
               </div>
@@ -294,14 +366,29 @@ export default function Admin() {
                           <td>{role}</td>
                           <td>{email}</td>
                           <td>{password}</td>
-                          <button
-                            onClick={() => {
-                              removeUser(id);
-                            }}
-                            className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                          >
-                            Remove
-                          </button>
+                          <td>
+                            <button
+                              onClick={() => {
+                                removeUser(id);
+                              }}
+                              className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            >
+                              Remove
+                            </button>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => {
+                                setChangeRole(true);
+                                setemail(email);
+                                setRole(role);
+                              }}
+                              className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            >
+                              Change Role
+                            </button>
+                          </td>
+
                           {/* <select
                onChange={(e)=>changeRole(e, id)}
                value={role} className='className="py-2 ml-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"'>
@@ -320,6 +407,61 @@ export default function Admin() {
                 </table>
               </div>
             )}
+            <div className=" w-full rounded-lg bg-white p-8 shadow-lg">
+              <h1 className="mb-4 text-center text-2xl font-bold">
+                Login Histories Page
+              </h1>
+              {true && (
+                <div style={{ marginTop: "30px", width: "75vw" }}>
+                  <table style={{ width: "inherit" }} className="shadow-sm">
+                    <thead className="bg-gray-50">
+                      <tr
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(5, 1fr)",
+                          padding: "10px",
+                        }}
+                      >
+                        <td>Role</td>
+                        <td>Email</td>
+                        <td>Location</td>
+                      </tr>
+                    </thead>
+                    <tbody style={{ display: "grid" }}>
+                      {data.map((item) => {
+                        const { id, age, role, email, password } = item;
+                        return (
+                          <tr
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(5, 1fr)",
+                              padding: "10px",
+                            }}
+                            key={id}
+                          >
+                            <td>{role}</td>
+                            <td>{email}</td>
+                            <td>{password}</td>
+
+                            {/* <select
+               onChange={(e)=>changeRole(e, id)}
+               value={role} className='className="py-2 ml-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"'>
+                <option>{role}</option>
+                <option value="user">User</option>
+                <option value="moderator">Moderator</option>
+                <option value="finance">Finance Manager</option>
+                <option value="manager">General Manager</option>
+                <option value="secretary">General Secretary</option>
+              </select> */}
+                            {/* <button onClick={()=>{}} className="py-2 ml-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Change Role</button> */}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}

@@ -1,6 +1,6 @@
 //imports
-import Signup from "@/components/Auth/Signup";
 import { Metadata } from "next";
+import AdminSignUp from "@/components/Auth/AdminSignUp";
 
 export const metadata: Metadata = {
   title: "Sign Up Page - Admin SIGN UP PAGE",
@@ -12,7 +12,7 @@ export default function Register() {
   return (
     <>
       {/* The SignUp Component */}
-      <Signup />
+      <AdminSignUp />
     </>
   );
 }

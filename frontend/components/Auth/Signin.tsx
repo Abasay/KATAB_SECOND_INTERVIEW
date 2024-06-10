@@ -315,6 +315,7 @@ const Signin = () => {
       toast.error("Please fill in all fields");
       return;
     }
+    toast.loading('Logging in...')
 
     try {
       // Encrypt the password and passphrase
@@ -353,6 +354,8 @@ const Signin = () => {
       const response = await request.json();
 
       if (response.success) {
+        toast.dismiss()
+        toast.success("Login successful");
         setHideLogin(true);
         setEnterOtp(true);
         setEmail(data.email);
@@ -468,6 +471,7 @@ const Signin = () => {
         //   setSmsAuth(true);
         // }
       } else {
+        toast.error('An error occurred.')
         setErr(true);
         setErrMsg(response.data.message);
       }

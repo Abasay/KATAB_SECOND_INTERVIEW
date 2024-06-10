@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const LoginHistorySchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Types.ObjectId },
+    user: { type: mongoose.Types.ObjectId, ref: 'User' },
     loginHistories: [
       {
         latitude: { type: String },

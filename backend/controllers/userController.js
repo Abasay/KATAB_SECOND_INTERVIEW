@@ -653,18 +653,34 @@ const forgetPassword = async (req, res) => {
 
 const changeRole = async (req, res) => {
   try {
+    const { email, adminEmail, role } = req.body;
     const user = await UserModel.findOne({
       email: req.body.email,
     });
     if (!user) {
       return { success: false, data: { message: 'User does not exist.' } };
     }
-    user.role = req.body.role;
-    await user.save();
 
+    const admin = await UserModel.findOne({
+      email: adminEmail,
+    });
+    if (!admin) {
+      return { success: false, data: { message: 'Admin does not exist.' } };
+    }
+    admin.role = req.body.role;
+    await admin.save();
+
+    const admins = await UserModel.find({ isAdmin: true });
     return res.status(200).json({
       success: true,
-      data: 'Role Changed',
+      data: admins.map((admin) => {
+        return {
+          id: admin._id,
+          email: admin.email,
+          password: '1234567',
+          role: admin.role,
+        };
+      }),
     });
   } catch (error) {
     console.log(error);
@@ -1319,6 +1335,50 @@ const deleteRolesForAdmin = async (req, res) => {
     });
   }
 };
+
+const getAdmins = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email: email });
+    if (!user || !user.isMainAdmin) {
+      return res
+        .status(404)
+        .json({ success: false, data: 'User Not Authorized' });
+    }
+    const admins = await UserModel.find({ isAdmin: true });
+    return res.status(200).json({
+      success: true,
+      data: admins.map((admin) => {
+        return {
+          id: admin._id,
+          email: admin.email,
+          password: '1234567',
+          role: admin.role,
+        };
+      }),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, data: 'An error occurred' });
+  }
+};
+
+const getLoginLocations = async () => {
+  try {
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email: email });
+    if (!user || !user.isMainAdmin) {
+      return res
+        .status(404)
+        .json({ success: false, data: 'User Not Authorized' });
+    }
+    const admins = await UserModel.find({ isAdmin: true });
+    const loginHistory = await LoginHistoryModel.find({});
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, data: 'An error occurred' });
+  }
+};
 module.exports = {
   registerUser,
   googleRegisterUser,
@@ -1349,4 +1409,5 @@ module.exports = {
   getRolesForAdmin,
   deleteRolesForAdmin,
   sendSmsOTP,
+  getAdmins,
 };
