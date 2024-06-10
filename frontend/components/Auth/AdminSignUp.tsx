@@ -236,7 +236,7 @@ const AdminSignUp = () => {
         );
       const uploadUserDetails = new Promise(async (resolve, reject) => {
         const uploadRequest = await fetch(
-          `${process.env.NEXT_PUBLIC_BASEURL}/user/admin/signup`,
+          `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/admin/signup`,
           {
             method: "POST",
             headers: {
