@@ -254,14 +254,15 @@ const Signin = () => {
       );
 
       const data = await res.json();
+      
       if (data.data === "OTP Confirmed") {
         setSuccess(true);
         setToken("");
 
-        //console.log(response);
-        // Cookies.set("c&m-userEmail", emailNew);
-        // Cookies.set("c&m-isLoggedIn", true);
-        // Cookies.set("c&m-token", tokennew);
+        // console.log(response);
+        Cookies.set("c&m-userEmail", emailNew);
+        Cookies.set("c&m-isLoggedIn", true);
+        Cookies.set("c&m-token", tokennew);
         setSuccessSignIn(true);
         setVerificationMessage("OTP verified successfully!");
         // setPassPhrase(true);
@@ -273,9 +274,9 @@ const Signin = () => {
           setSmsAuth(true);
         } else {
           setVerificationMessage(data.data);
-          Cookies.set("c&m-userEmail", email);
+          Cookies.set("c&m-userEmail", emailNew);
           Cookies.set("c&m-isLoggedIn", true);
-          Cookies.set("c&m-token", token);
+          Cookies.set("c&m-token", tokennew);
           toast.success("Login successful");
 
           router.push("/");
