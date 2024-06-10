@@ -13,6 +13,7 @@ const RolesPage = () => {
   ]);
   const [uploadedRoles, setUploadedRoles] = useState<Role[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [uploaded, setUploaded] = useState<Boolean>(false);
 
   const handleRoleNameChange = (index: number, value: string) => {
     const newRoles = [...roles];
@@ -57,14 +58,9 @@ const RolesPage = () => {
     setRoles(uploadedRoles);
   };
 
-  const handleDelete = (index: number) => {
-    const newUploadedRoles = [...uploadedRoles];
-    newUploadedRoles.splice(index, 1);
-    setUploadedRoles(newUploadedRoles);
-  };
-
   const handleUpload = async () => {
     try {
+      setUploaded(false);
       toast.loading("Uploading Roles");
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/upload-roles`,
@@ -78,6 +74,7 @@ const RolesPage = () => {
       );
       const data = await res.json();
       if (data.success) {
+        setUploaded(true);
         setUploadedRoles([...uploadedRoles, ...roles]);
         setRoles([{ role: "", rolesAssignable: [""] }]);
         toast.dismiss();
@@ -93,6 +90,62 @@ const RolesPage = () => {
     }
   };
 
+  const getRoles = async () => {
+    try {
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/roles`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: Cookies.get("c&m-userEmail") }),
+        },
+      );
+
+      const data = await request.json();
+      if (data.success) {
+        setUploadedRoles(data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDelete = async (role: string) => {
+    try {
+      toast.loading("Deleting Role");
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/delete-role`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: Cookies.get("c&m-userEmail"),
+            roleTitle: role,
+          }),
+        },
+      );
+
+      const data = await request.json();
+      if (data.success) {
+        toast.dismiss();
+        toast.success("Role deleted");
+        setUploadedRoles(data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (uploaded) getRoles;
+  }, [uploaded]);
+  useEffect(() => {
+    getRoles();
+  }, []);
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-4 text-2xl font-bold">Create Roles</h1>
@@ -150,7 +203,7 @@ const RolesPage = () => {
 
       <div className="mt-8">
         <h2 className="mb-4 text-xl font-bold">Uploaded Roles</h2>
-        {uploadedRoles.map((role, index) => (
+        {uploadedRoles?.map((role, index) => (
           <div key={index} className="mb-4 rounded-lg border p-4 shadow-md">
             <div>
               <span className="font-bold">Role Name:</span> {role.role}
@@ -158,7 +211,7 @@ const RolesPage = () => {
             <div className="mt-2">
               <span className="font-bold">Sub Roles:</span>
               <ul className="ml-6 list-disc">
-                {role.rolesAssignable.map((subRole, subIndex) => (
+                {role?.rolesAssignable?.map((subRole, subIndex) => (
                   <li key={subIndex}>{subRole}</li>
                 ))}
               </ul>
@@ -173,7 +226,7 @@ const RolesPage = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(index)}
+                    onClick={() => handleDelete(role.role)}
                     className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                   >
                     Delete

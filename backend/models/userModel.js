@@ -43,6 +43,7 @@ const userSchema = new mongoose.Schema(
     signInMethod: { type: String, default: 'SIGNUP' },
     refereshToken: { type: String },
     adminType: { type: String, default: 'Nil' },
+    isAdmin: { type: Boolean, default: false },
     isMainAdmin: { type: Boolean, default: false },
     secret2FA: { type: String, default: 'Nil' },
     otp: { type: String, default: 'Nil' },

@@ -237,7 +237,11 @@ const Header = () => {
 
             {token && userEmail && (
               <button
-                onClick={() => signOut(router, Cookies)}
+                onClick={() => {
+                  signOut(router, Cookies);
+
+                  router.push("/");
+                }}
                 className={
                   pathUrl === ""
                     ? "flex flex-row items-center gap-2 rounded-md border border-slate-300 bg-white px-2 text-black "

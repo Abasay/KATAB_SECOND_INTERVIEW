@@ -6,6 +6,7 @@ import { encryptSymmetric } from "@/middlewares/encrypt";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import { URLS } from "@/lib/urls";
 import { dummyData } from "./dummyData";
+import RolesPage from "./RolesCreate";
 
 const salt = genSaltSync(10);
 
@@ -16,6 +17,8 @@ export default function Admin() {
   const [role, setRole] = useState<string>("user");
   const [message, setMessage] = useState<string>("");
   const [isMainAdmin, setIsMainAdmin] = useState<boolean>(false);
+  const [adminType, setAdminType] = useState<string>("");
+  const [roles, setRoles] = useState<string[]>([]);
 
   const userEmail = Cookies.get("c&m-userEmail");
 
@@ -111,6 +114,27 @@ export default function Admin() {
   //   setRole(value);
   // };
 
+  const getRoles = async () => {
+    try {
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/get-roles`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: Cookies.get("c&m-userEmail") }),
+        },
+      );
+
+      const data = await request.json();
+      if (data.success) {
+        setRoles(data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const router = useRouter();
 
   useEffect(() => {
@@ -133,89 +157,106 @@ export default function Admin() {
       //console.log(response.data);
       if (response.success) {
         setIsMainAdmin(response.data.isMainAdmin);
+        setAdminType(response.data.adminType);
       } else {
         router.push("/dashboard");
       }
     })();
+    getRoles();
   }, []);
 
   return (
     <>
-      {isMainAdmin && (
+      {(isMainAdmin || adminType !== "user") && (
         <>
           <div
             style={{ flexDirection: "column", marginLeft: "45px" }}
             className="m flex  w-[auto] justify-center"
           >
             <div
-              style={{ width: "400px" }}
-              className="w-[400px] w-full rounded-lg bg-white p-8 shadow-lg"
+              // style={{ width: "400px" }}
+              className=" w-full rounded-lg bg-white p-8 shadow-lg"
             >
               <h1 className="mb-4 text-center text-2xl font-bold">
-                Main Admin Page
+                Admin Page
               </h1>
-              <form onSubmit={(e) => handleSubmit(e)} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
+              {isMainAdmin && <RolesPage />}
+              <div>
+                <h1 className="mb-4 text-center text-2xl font-bold">
+                  Create An Admin
+                </h1>
+                <form onSubmit={(e) => handleSubmit(e)} className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Email
+                    </label>
+                    <input
+                      type="text"
+                      id="email"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                      value={email}
+                      onChange={(e) => setemail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="role"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Role
+                    </label>
+                    <select
+                      id="role"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                    >
+                      {roles.length > 0 ? (
+                        roles.map((rol, idx) => {
+                          return (
+                            <option value={rol} key={idx}>
+                              {rol}
+                            </option>
+                          );
+                        })
+                      ) : (
+                        <div>
+                          <p>No roles Available for this admin to assign</p>{" "}
+                        </div>
+                      )}
+                    </select>
+                  </div>
+                  <button
+                    style={{ width: "150px", alignItems: "center" }}
+                    type="submit"
+                    onClick={addUser}
+                    className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >
-                    Email
-                  </label>
-                  <input
-                    type="text"
-                    id="email"
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    value={email}
-                    onChange={(e) => setemail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Role
-                  </label>
-                  <select
-                    id="role"
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                  >
-                    <option value="User">User</option>
-                    <option value="Moderator">Moderator</option>
-                    <option value="Finance Manager">Finance Manager</option>
-                    <option value="General Manager">General Manager</option>
-                    <option value="General Secretary">General Secretary</option>
-                  </select>
-                </div>
-                <button
-                  style={{ width: "150px", alignItems: "center" }}
-                  type="submit"
-                  onClick={addUser}
-                  className="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Create User
-                </button>
-              </form>
+                    Create User
+                  </button>
+                </form>
+              </div>
+
               {message && (
                 <p className="mt-4 text-center text-red-500">{message}</p>
               )}

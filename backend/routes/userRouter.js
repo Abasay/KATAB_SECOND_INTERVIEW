@@ -27,6 +27,8 @@ const {
   uploadRoles,
   getRoles,
   getRolesForAdmin,
+  deleteRolesForAdmin,
+  sendSmsOTP,
 } = require('../controllers/userController');
 
 const protect = require('../middlewares/authHandler');
@@ -36,7 +38,7 @@ const userRouter = express.Router();
 userRouter.get('/user/changerole', changeRole);
 userRouter.get('/user/:userEmail', protect, getUser);
 
-userRouter.get('/user/roles', getRolesForAdmin);
+userRouter.post('/user/roles', getRolesForAdmin);
 
 userRouter.post('/user/generate2fa', speakeasygen);
 userRouter.post('/signup', registerUser);
@@ -65,11 +67,14 @@ userRouter.post('/login/google', userLoginWithGoogle);
 
 userRouter.delete('/user/removeadmin', deleteAdmin);
 userRouter.patch('/user/update-role', changeRole);
-userRouter.post('/user/roles', getRoles);
+userRouter.post('/user/get-roles', getRoles);
 
 userRouter.post('/user/sms-otp', getSmsOTP);
+userRouter.post('/user/get-sms-otp', sendSmsOTP);
 userRouter.post('/user/verify-sms-otp', verifySmsOtp);
 userRouter.post('/user/auths', getAuthsEnabled);
 userRouter.post('/user/disableAuth', disableAuths);
+
+userRouter.delete('/user/delete-role', deleteRolesForAdmin);
 
 module.exports = userRouter;

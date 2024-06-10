@@ -12,10 +12,16 @@ import Footer from "../Footer";
 import { URLS } from "@/lib/urls";
 import { encryptSymmetric } from "@/middlewares/encrypt";
 import PassPhrase from "./PassPhraseLogin";
+import OTPComponent from "./OTPSignin";
 
 /**
  * Signin component for handling user signin functionality.
  */
+
+interface Auths {
+  authType: string;
+  authFulfilled: Boolean;
+}
 const Signin = () => {
   // State variables for email and password fields
   const [data, setData] = useState({
@@ -173,6 +179,14 @@ const Signin = () => {
     });
   };
 
+  const checkAuthsFulfilled = (auth) => {
+    const authsFulfilled = auths.filter(
+      (authType) => authType.authType === auth && auth.authFulfilled,
+    );
+
+    return authsFulfilled.length > 0 ? true : false;
+  };
+
   const verifyToken = async () => {
     try {
       const res = await fetch(
@@ -196,7 +210,24 @@ const Signin = () => {
         setSuccessSignIn(true);
         setVerificationMessage("Token verified successfully!");
         //  router.push("/");
-        setPassPhrase(true);
+        // setPassPhrase(true);
+        if (checkAuth("sms-auth")) {
+          const newAuths = auths.map((auth) => {
+            if (auth.authType === "authenticator-auth") {
+              return { ...auth, authFulfilled: true };
+            }
+            return auth;
+          });
+          setSmsAuth(true);
+          setAuthenticatorAuth(false);
+          setAuths(newAuths);
+        } else {
+          Cookies.set("c&m-userEmail", email);
+          Cookies.set("c&m-isLoggedIn", true);
+          Cookies.set("c&m-token", token);
+          toast.success("Login successful");
+          router.push("/");
+        }
       } else {
         setVerificationMessage("Token verification failed.");
       }
@@ -223,8 +254,9 @@ const Signin = () => {
       );
 
       const data = await res.json();
-      if (data.success) {
+      if (data.data === "OTP Confirmed") {
         setSuccess(true);
+        setToken("");
 
         //console.log(response);
         // Cookies.set("c&m-userEmail", emailNew);
@@ -232,8 +264,22 @@ const Signin = () => {
         // Cookies.set("c&m-token", tokennew);
         setSuccessSignIn(true);
         setVerificationMessage("OTP verified successfully!");
-        setPassPhrase(true);
-        // router.push("/");
+        // setPassPhrase(true);
+        if (checkAuth("passkey-auth")) {
+          setPassKeyAuth(true);
+        } else if (checkAuth("authenticator-auth")) {
+          setAuthenticatorAuth(true);
+        } else if (checkAuth("sms-auth")) {
+          setSmsAuth(true);
+        } else {
+          setVerificationMessage(data.data);
+          Cookies.set("c&m-userEmail", email);
+          Cookies.set("c&m-isLoggedIn", true);
+          Cookies.set("c&m-token", token);
+          toast.success("Login successful");
+
+          router.push("/");
+        }
       } else {
         setVerificationMessage(data.data);
       }
@@ -247,30 +293,74 @@ const Signin = () => {
     }
   };
 
-  // Form submission handler for email and password login
+  const [authenticatorAuth, setAuthenticatorAuth] = useState<Boolean>(false);
+  const [smsAuth, setSmsAuth] = useState<Boolean>(false);
+  const [passKeyAuth, setPassKeyAuth] = useState<Boolean>(false);
+  const [authEnabled, setAuthEnabled] = useState<string>("");
+  const [auths, setAuths] = useState<Auths[]>([
+    { authType: "", authFulfilled: false },
+  ]);
+
+  console.log(auths);
+
+  const checkAuth = (authCheck) => {
+    const checkAuth = auths.filter((auth) => auth.authType === authCheck);
+
+    return checkAuth.length > 0 ? true : false;
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!data.email || !data.password || !data.passPhrase) {
       toast.error("Please fill in all fields");
       return;
     }
-    const { ciphertext, iv } = await encryptSymmetric(
-      data.password,
-      String(process.env.NEXT_PUBLIC_CRYPTOKEY),
-    );
 
-    const { ciphertext: passPhraseCiphertext, iv: passPhraseIv } =
-      await encryptSymmetric(
-        data.passPhrase,
+    try {
+      // Encrypt the password and passphrase
+      const { ciphertext, iv } = await encryptSymmetric(
+        data.password,
         String(process.env.NEXT_PUBLIC_CRYPTOKEY),
       );
-    try {
+      const { ciphertext: passPhraseCiphertext, iv: passPhraseIv } =
+        await encryptSymmetric(
+          data.passPhrase,
+          String(process.env.NEXT_PUBLIC_CRYPTOKEY),
+        );
+
       setSuccessSignIn(false);
       setHideLogin(false);
-      const loginRequest = new Promise(async (resolve, reject) => {
-        setErr(false);
-        const request = await fetch(
-          `${process.env.NEXT_PUBLIC_BASEURL}/auth/login`,
+      setErr(false);
+
+      // Send login request
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_BASEURL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: data.email,
+            passwordNew: ciphertext,
+            iv: iv,
+            passPhrase: passPhraseCiphertext,
+            passPhraseIv: passPhraseIv,
+          }),
+        },
+      );
+
+      const response = await request.json();
+
+      if (response.success) {
+        setHideLogin(true);
+        setEnterOtp(true);
+        setEmail(data.email);
+        setIsLOGGEDiN(true);
+        setTokenNew(response.data.token);
+        // Handle OTP
+        const requestOtp = await fetch(
+          `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/otp`,
           {
             method: "POST",
             headers: {
@@ -278,60 +368,112 @@ const Signin = () => {
             },
             body: JSON.stringify({
               email: data.email,
-              passwordNew: ciphertext,
-              iv: iv,
-              passPhrase: passPhraseCiphertext,
-              passPhraseIv: passPhraseIv,
             }),
           },
         );
-        const response = await request.json();
 
-        if (response.success) {
-          if (response.data.isMainAdmin) {
-            setHideLogin(true);
-            setEnterToken(true);
-            setEmail(data.email);
-            setIsLOGGEDiN(true);
-            setTokenNew(response.data.token);
-          } else {
-            setHideLogin(true);
-            setEnterOtp(true);
-            setEmail(data.email);
-            setIsLOGGEDiN(true);
-            setTokenNew(response.data.token);
-            const request2 = await fetch(
-              `${process.env.NEXT_PUBLIC_BASEURL}/auth/user/otp`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  email: data.email,
-                }),
-              },
-            );
-            const response2 = await request2.json();
-            console.log(response2);
-          }
+        const responseOtp = await requestOtp.json();
+        console.log(responseOtp);
 
-          resolve(response);
-        } else {
-          //console.log(response);
-          setErr(true);
-          setErrMsg(response.data.message);
-          reject();
+        // Check for enabled authentication methods
+        const { authEnabled, token } = response.data;
+        const authsEnabled = authEnabled;
+        const authenticatorAuthEnabled =
+          authsEnabled.includes("authenticator-auth");
+        const passkeyAuthEnabled = authsEnabled.includes("passkey-auth");
+        const smsAuthEnabled = authsEnabled.includes("sms-auth");
+
+        console.log(
+          authenticatorAuthEnabled,
+          passkeyAuthEnabled,
+          smsAuthEnabled,
+        );
+
+        // Handle Authenticator Auth
+        if (authenticatorAuthEnabled) {
+          // setEnterToken(true);
+          setAuths((prevAuths) => [
+            ...prevAuths,
+            { authType: "authenticator-auth", authFulfilled: false },
+          ]);
+          // Set this to false initially
+          // Implement the logic for authenticator-auth here and set allAuthsCompleted to true after success
         }
-      });
 
-      await toast.promise(loginRequest, {
-        loading: "Logging in...",
-        success: <b>Login Successful</b>,
-        error: <b>An error occured signing you in, please try again.</b>,
-      });
+        // Handle Passkey Auth
+        if (passkeyAuthEnabled) {
+          setAuthEnabled("passkey-auth");
+          setAuths((prevAuths) => [
+            ...prevAuths,
+            { authType: "passkey-auth", authFulfilled: false },
+          ]);
+
+          // setPassKeyAuth(true);
+          // Implement the logic for passkey-auth here and set allAuthsCompleted to true after success
+        }
+
+        // Handle SMS Auth
+        if (smsAuthEnabled) {
+          setAuthEnabled("sms-auth");
+          setAuths((prevAuths) => [
+            ...prevAuths,
+            { authType: "sms-auth", authFulfilled: false },
+          ]);
+          // setSmsAuth(true);
+          // Implement the logic for sms-auth here and set allAuthsCompleted to true after success
+        }
+
+        // if (
+        //   !smsAuthEnabled &&
+        //   !passkeyAuthEnabled &&
+        //   authenticatorAuthEnabled
+        // ) {
+        //   setAuthenticatorAuth(true);
+        // }
+
+        // if (authenticatorAuthEnabled && smsAuthEnabled && passkeyAuthEnabled) {
+        //   setAuthenticatorAuth(true);
+        //   setSmsAuth(false);
+        //   setPassKeyAuth(false);
+        // }
+        // if (!authenticatorAuthEnabled && smsAuthEnabled && passkeyAuthEnabled) {
+        //   setAuthenticatorAuth(false);
+        //   setSmsAuth(true);
+        //   setPassKeyAuth(false);
+        // }
+
+        // if (authenticatorAuthEnabled && smsAuthEnabled && !passkeyAuthEnabled) {
+        //   setAuthenticatorAuth(true);
+        //   setSmsAuth(false);
+        //   setPassKeyAuth(false);
+        // }
+        // if (authenticatorAuthEnabled && !smsAuthEnabled && passkeyAuthEnabled) {
+        //   setAuthenticatorAuth(true);
+        //   setSmsAuth(false);
+        //   setPassKeyAuth(false);
+        // }
+
+        // if (
+        //   !smsAuthEnabled &&
+        //   passkeyAuthEnabled &&
+        //   !authenticatorAuthEnabled
+        // ) {
+        //   setPassKeyAuth(true);
+        // }
+        // if (
+        //   smsAuthEnabled &&
+        //   !passkeyAuthEnabled &&
+        //   !authenticatorAuthEnabled
+        // ) {
+        //   setSmsAuth(true);
+        // }
+      } else {
+        setErr(true);
+        setErrMsg(response.data.message);
+      }
     } catch (err) {
-      //console.log(err);
+      console.error(err);
+      toast.error("An error occurred signing you in, please try again.");
     }
   };
 
@@ -385,7 +527,7 @@ const Signin = () => {
                         ? "Reset Password"
                         : "Login to Your Account"}
                     </h2>
-                    <div className="flex flex-col">
+                    {/* <div className="flex flex-col">
                       <div className="flex items-center gap-8">
                         <button
                           onClick={() => handleGoogleLogin()}
@@ -428,7 +570,7 @@ const Signin = () => {
                           Sign in using Google
                         </button>
                       </div>
-                    </div>
+                    </div> */}
                     {!forgetPasswd && (
                       <div className="mb-10 flex items-center justify-center">
                         <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
@@ -531,7 +673,7 @@ const Signin = () => {
                   </>
                 )}
                 <>
-                  {enterToken && (
+                  {authenticatorAuth && (
                     <div className="space-y-4">
                       <div>
                         <h2 className="mb-5 text-center text-2xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
@@ -604,11 +746,27 @@ const Signin = () => {
                   )}
                 </>
                 <>
-                  {passPhrase && (
+                  {passKeyAuth && (
                     <PassPhrase
                       email={emailNew}
                       token={tokennew}
-                      isLoggedIn={isLOGGEDiN}
+                      isLOGGEDiN={isLOGGEDiN}
+                      auths={auths}
+                      setAuths={setAuths}
+                      setAuthenticatorAuth={setAuthenticatorAuth}
+                      setSmsAuth={setSmsAuth}
+                      setPassKeyAuth={setPassKeyAuth}
+                    />
+                  )}
+                </>
+                <>
+                  {smsAuth && (
+                    <OTPComponent
+                      email={emailNew}
+                      token={tokennew}
+                      isLOGGEDiN={isLOGGEDiN}
+                      setSmsAuth={setSmsAuth}
+                      authsEnabled={[]}
                     />
                   )}
                 </>

@@ -151,7 +151,6 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-      <RolesPage />
     </>
   );
 };

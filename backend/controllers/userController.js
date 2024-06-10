@@ -1034,6 +1034,28 @@ const getSmsOTP = async (req, res) => {
   }
 };
 
+const sendSmsOTP = async (req, res) => {
+  try {
+    const user = await UserModel.findOne({
+      email: req.body.email,
+    });
+    if (!user) {
+      return res.status(400).json({ success: false, data: 'User not found' });
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const sendOtp = await smsOTP(user.phoneNumber);
+    console.log(sendOtp);
+    if (sendOtp === 'approved' || sendOtp === 'pending') {
+      return res.status(200).json({ success: true, message: 'OTP Sent' });
+    }
+    return res.status(200).json({ success: true, message: 'OTP Sent' });
+    // return res.status(500).json({ success: false, data: 'Error Occured' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, error: 'Error Occured' });
+  }
+};
 const verifySmsOtp = async (req, res) => {
   try {
     const user = await UserModel.findOne({ email: req.body.email });
@@ -1169,17 +1191,43 @@ const getRoles = async (req, res) => {
       });
     }
 
+    // const admin = await UserModel.findOne({
+    //   email:process.env.ADMIN
+    // })
+
+    const rolesByMainAdmin = await AdminTypeModel.findOne({
+      admin: user._id,
+    });
+
+    const allowedRoles = rolesByMainAdmin.adminTypes.find(
+      (role) => role.role === user.role
+    );
+
+    console.log(allowedRoles.rolesAssignable);
+
+    //  const rolesByMainAdmin = await AdminTypeModel.findOne({
+    //    admin: admin._id,
+    //  });
+
+    console.log(user.isAdmin);
+
     if (user.isMainAdmin) {
-      const roles = await AdminTypeModel.find({});
-      return res
-        .status(200)
-        .json({ success: true, data: [rolesToString(roles.adminTypes)] });
+      const roles = await AdminTypeModel.findOne({ admin: user._id });
+
+      return res.status(200).json({
+        success: true,
+        data: rolesToString(roles.adminTypes).split(','),
+      });
     } else if (user.isAdmin) {
       const roles = await AdminTypeModel.find({
         adminTypes: { $elemMatch: { role: user.role } },
       });
 
-      return res.status(200).json({ success: true, data: roles });
+      return res
+        .status(200)
+        .json({ success: true, data: allowedRoles.rolesAssignable });
+    } else {
+      return res.status(200).json({ success: true, data: [] });
     }
   } catch (error) {
     console.log(error);
@@ -1192,7 +1240,7 @@ const getRoles = async (req, res) => {
 
 const getRolesForAdmin = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email } = req.body;
 
     const user = await UserModel.findOne({
       email: email,
@@ -1205,15 +1253,64 @@ const getRolesForAdmin = async (req, res) => {
       });
     }
 
-    const roles = await AdminTypeModel.find({});
+    const roles = await AdminTypeModel.findOne({ admin: user._id });
 
-    if (email === process.env.ADMIN && user.isMainAdmin) {
-      return res.status(200).json({ success: true, data: roles });
+    // if (email === process.env.ADMIN && user.isMainAdmin) {
+    //   return res.status(200).json({ success: true, data: roles });
+    // }
+
+    if (user.isMainAdmin) {
+      return res.status(200).json({ success: true, data: roles.adminTypes });
     }
 
     return res
       .status(400)
       .json({ success: false, data: 'Not Authorized to perform this action' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      data: 'An error occurred',
+    });
+  }
+};
+
+const deleteRolesForAdmin = async (req, res) => {
+  try {
+    const { email, roleTitle } = req.body;
+
+    const user = await UserModel.findOne({
+      email: email,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        data: 'User not found',
+      });
+    }
+
+    if (!user.isMainAdmin) {
+      return res.status(400).json({
+        success: false,
+        data: 'Not Authorized to perform this action',
+      });
+    }
+
+    const roles = await AdminTypeModel.findOne({ admin: user._id });
+
+    const removeRoles = roles.adminTypes.filter(
+      (role) => role.role !== roleTitle
+    );
+    console.log(removeRoles);
+    roles.adminTypes = removeRoles;
+    await roles.save();
+
+    // if (email === process.env.ADMIN && user.isMainAdmin) {
+    //   return res.status(200).json({ success: true, data: roles });
+    // }
+
+    return res.status(200).json({ success: true, data: removeRoles });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -1250,4 +1347,6 @@ module.exports = {
   disableAuths,
   getRoles,
   getRolesForAdmin,
+  deleteRolesForAdmin,
+  sendSmsOTP,
 };

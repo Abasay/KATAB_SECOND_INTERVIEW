@@ -92,7 +92,16 @@ const arrayBufferToBase64url = (buffer: ArrayBuffer): string => {
     .replace(/=+$/, "");
 };
 // Register component
-const PassPhrase = ({ email, token, isLOGGEDiN }) => {
+const PassPhrase = ({
+  email,
+  token,
+  isLOGGEDiN,
+  auths,
+  setAuths,
+  setAuthenticatorAuth,
+  setSmsAuth,
+  setPassKeyAuth,
+}) => {
   const [username, setUsername] = useState<string>("");
   // Fetch options from the server for the registration
   const getAuthenticationOptions = async (username: string) => {
@@ -164,6 +173,21 @@ const PassPhrase = ({ email, token, isLOGGEDiN }) => {
   const userIsLoggedIn = Cookies.get("c&m-isLoggedIn");
   const userToken = Cookies.get("c&m-token");
   const router = useRouter();
+
+  const checkAuths = (auth) => {
+    const authsEnabled = auths.filter((authType) => authType.authType === auth);
+
+    return authsEnabled.length > 0 ? true : false;
+  };
+
+  const checkAuthsFulfilled = (auth) => {
+    const authsFulfilled = auths.filter(
+      (authType) => authType.authType === auth && auth.authFulfilled,
+    );
+
+    return authsFulfilled.length > 0 ? true : false;
+  };
+
   const handleLogin = async (e: any) => {
     e.preventDefault();
     const options = await getAuthenticationOptions(username);
@@ -209,12 +233,46 @@ const PassPhrase = ({ email, token, isLOGGEDiN }) => {
     );
 
     if (verification.status === "ok") {
-      Cookies.set("c&m-userEmail", email);
-      Cookies.set("c&m-isLoggedIn", true);
-      Cookies.set("c&m-token", token);
-      toast.success("Login successful");
-      setUsername("");
-      router.push("/");
+      if (checkAuths("authenticator-auth")) {
+        const newAuths = auths.map((auth) => {
+          if (auth.authType === "passkey-auth") {
+            return { ...auth, authFulfilled: true };
+          }
+          return auth;
+        });
+        setUsername("");
+        setAuthenticatorAuth(true);
+        setPassKeyAuth(false);
+        setAuths(newAuths);
+      } else if (checkAuths("sms-auth")) {
+        const newAuths = auths.map((auth) => {
+          if (auth.authType === "passkey-auth") {
+            return { ...auth, authFulfilled: true };
+          }
+          return auth;
+        });
+        setUsername("");
+        setSmsAuth(true);
+        setPassKeyAuth(false);
+        setAuths(newAuths);
+      } else if (
+        checkAuthsFulfilled("sms-auth") &&
+        checkAuthsFulfilled("authenticator-auth")
+      ) {
+        Cookies.set("c&m-userEmail", email);
+        Cookies.set("c&m-isLoggedIn", true);
+        Cookies.set("c&m-token", token);
+        toast.success("Login successful");
+        setUsername("");
+        router.push("/");
+      } else if (!checkAuths("sms-auth") && !checkAuths("authenticator-auth")) {
+        Cookies.set("c&m-userEmail", email);
+        Cookies.set("c&m-isLoggedIn", true);
+        Cookies.set("c&m-token", token);
+        toast.success("Login successful");
+        setUsername("");
+        router.push("/");
+      }
     } else {
       toast.error("Passkey authentication failed");
     }
