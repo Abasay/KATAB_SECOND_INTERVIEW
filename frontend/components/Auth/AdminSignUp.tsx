@@ -75,6 +75,7 @@ const AdminSignUp = () => {
     profileImg: "",
     password: "",
     confirmPassword: "",
+    passPhrase: "",
   });
 
   const email = Cookies.get("c&m-userEmail");
@@ -213,6 +214,11 @@ const AdminSignUp = () => {
       return;
     }
 
+    if (data.passPhrase.length < 15) {
+      toast.error("Pass phrase must be at least 15 characters long");
+      return;
+    }
+
     setErr(false);
     setIsSigningIn(true);
     setSuccess(false);
@@ -223,6 +229,11 @@ const AdminSignUp = () => {
         hashSync(data.password, salt),
         String(process.env.NEXT_PUBLIC_CRYPTOKEY),
       );
+      const { ciphertext: passPhraseCiphertext, iv: passPhraseIv } =
+        await encryptSymmetric(
+          data.passPhrase,
+          String(process.env.NEXT_PUBLIC_CRYPTOKEY),
+        );
       const uploadUserDetails = new Promise(async (resolve, reject) => {
         const uploadRequest = await fetch(
           `${process.env.NEXT_PUBLIC_BASEURL}/user/admin/signup`,
@@ -240,6 +251,8 @@ const AdminSignUp = () => {
                       "https://th.bing.com/th/id/R.3d968cd93cde586df04d1048dfb92604?rik=7MWjxZQVy1cjsg&pid=ImgRaw&r=0",
                     passwordNew: ciphertext,
                     iv: iv,
+                    passPhrase: passPhraseCiphertext,
+                    passPhraseIv: passPhraseIv,
                   },
             }),
           },
@@ -260,6 +273,7 @@ const AdminSignUp = () => {
             profileImg: "",
             password: "",
             confirmPassword: "",
+            passPhrase: "",
           });
           setImg("/images/about/default.gif");
 
@@ -507,6 +521,21 @@ const AdminSignUp = () => {
                       type="password"
                       placeholder="Confirm Password"
                       value={data.confirmPassword}
+                      onChange={(e) =>
+                        setData({ ...data, [e.target.name]: e.target.value })
+                      }
+                      className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo  focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2"
+                    />
+                  </div>
+                  <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
+                    <p>
+                      This passphrase will be asked whenever you want to login.
+                    </p>
+                    <input
+                      name="passPhrase"
+                      type="text"
+                      placeholder="Please create your pass phrase"
+                      value={data.passPhrase}
                       onChange={(e) =>
                         setData({ ...data, [e.target.name]: e.target.value })
                       }

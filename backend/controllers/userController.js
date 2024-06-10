@@ -106,8 +106,17 @@ async function registerUser(req, res) {
 
 async function registerAdmin(req, res) {
   // await connectDB();
-  const { firstName, lastName, email, password, profileImg, iv, role } =
-    req.body.data;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    profileImg,
+    iv,
+    role,
+    passPhrase,
+    passPhraseIv,
+  } = req.body.data;
   const saltRounds = 10;
   console.log(req.body);
 
@@ -119,6 +128,12 @@ async function registerAdmin(req, res) {
 
   const checkPassword = await bcrypt.compare('Asheem1Asheem1', passwordEncoded);
   console.log(checkPassword);
+
+  const encryptedPassPhrase = await decryptSymmetric(
+    passPhrase,
+    passPhraseIv,
+    process.env.CRYPTOKEY
+  );
 
   try {
     const user = await UserModel.findOne({
