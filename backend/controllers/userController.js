@@ -151,7 +151,7 @@ async function registerAdmin(req, res) {
         data: { message: 'Password must be more than 6 characters in length.' },
       });
     }
-    // const salt = bcrypt.genSaltSync(saltRounds);
+    const salt = bcrypt.genSaltSync(saltRounds);
     // const hash = bcrypt.hashSync(password, salt);
     const createUser = await UserModel.create({
       firstName,
@@ -163,6 +163,7 @@ async function registerAdmin(req, res) {
       role: role,
       isAdmin: role !== 'user' ? true : false,
       isMainAdmin: email === process.env.ADMIN,
+      passPhrase: bcrypt.hashSync(encryptedPassPhrase, salt),
     });
     // await createUser.save();
     //console.log(createUser);
